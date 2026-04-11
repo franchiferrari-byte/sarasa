@@ -728,7 +728,7 @@ async function cargarLista() {
       </div>
       <div class="prop-row-precio">${precio}</div>
       <div class="prop-row-actions">
-        <button class="btn-ver" onclick="window.open('/' + (p.slug ? 'propiedad.html?slug=' + p.slug : 'propiedad.html?id=' + p.id),'_blank')">Ver</button>
+        <button class="btn-ver" onclick="window.open('${p.slug ? '/propiedad.html?slug=' + p.slug : '/propiedad.html?id=' + p.id}','_blank')">Ver</button>
         <button class="btn-ficha" onclick="generarFicha('${p.id}')">📄 Ficha</button>
         <button class="btn-editar" onclick="abrirEdicion('${p.id}')">Editar</button>
         <button class="btn-del" onclick="eliminar('${p.id}')">Eliminar</button>
