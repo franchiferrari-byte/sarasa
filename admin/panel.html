@@ -1289,9 +1289,9 @@ async function generarFicha(id) {
     if (p.apta_credito) atributos.push({ icon: iconM2, label: 'Apta crédito' });
 
     const atributosHTML = atributos.map(a => `
-      <div style="display:flex;flex-direction:column;align-items:center;text-align:center;gap:6px;padding:10px 8px;">
+      <div class="atributo-item">
         ${a.icon}
-        <span style="font-size:11px;color:#333;font-family:'Georgia',serif;line-height:1.3;">${a.label}</span>
+        <span>${a.label}</span>
       </div>`).join('');
 
     // Layout fotos: 1 grande arriba, 2 secundarias abajo
@@ -1315,50 +1315,53 @@ async function generarFicha(id) {
 <style>
   * { box-sizing: border-box; margin: 0; padding: 0; }
   body { font-family: 'Lato', Arial, sans-serif; background: #fff; color: #222; }
-  .page { width: 794px; min-height: 1123px; margin: 0 auto; padding: 0; position: relative; }
+  .page { width: 794px; height: 1123px; margin: 0 auto; padding: 0; overflow: hidden; display: flex; flex-direction: column; }
+
+  /* BARRAS */
+  .top-bar { background: #0f2244; height: 7px; flex-shrink: 0; }
+  .gold-bar { background: #c9a84c; height: 3px; flex-shrink: 0; }
 
   /* HEADER */
-  .top-bar { background: #0f2244; padding: 0 36px; height: 8px; }
-  .gold-bar { background: #c9a84c; height: 3px; }
-  .titulo-bloque { padding: 28px 36px 20px; }
-  .titulo-bloque h1 { font-family: 'Playfair Display', Georgia, serif; font-size: 48px; font-weight: 900; color: #0f2244; line-height: 1; letter-spacing: -1px; }
-  .titulo-bloque .ubicacion { display:flex;align-items:center;gap:6px; margin-top: 8px; font-size: 13px; color: #c9a84c; font-weight: 700; letter-spacing: 0.5px; }
+  .titulo-bloque { padding: 13px 32px 10px; flex-shrink: 0; }
+  .titulo-bloque h1 { font-family: 'Playfair Display', Georgia, serif; font-size: 40px; font-weight: 900; color: #0f2244; line-height: 1; letter-spacing: -1px; }
+  .titulo-bloque .ubicacion { display:flex;align-items:center;gap:5px; margin-top: 5px; font-size: 12px; color: #c9a84c; font-weight: 700; letter-spacing: 0.5px; }
 
   /* FOTOS */
-  .foto-principal { width: 100%; height: 340px; object-fit: cover; display: block; position: relative; }
-  .foto-principal-wrap { position: relative; }
-  .foto-label { position: absolute; bottom: 14px; left: 50%; transform: translateX(-50%);
-    background: rgba(15,34,68,0.85); color: #fff; font-family: 'Lato', sans-serif;
-    font-size: 13px; font-weight: 700; letter-spacing: 2px; padding: 6px 20px; border-radius: 3px; white-space: nowrap; }
-  .fotos-secundarias { display: flex; gap: 0; }
-  .fotos-secundarias img { width: 50%; height: 190px; object-fit: cover; display: block; }
+  .foto-principal-wrap { position: relative; flex-shrink: 0; }
+  .foto-principal { width: 100%; height: 265px; object-fit: cover; display: block; }
+  .foto-label { position: absolute; bottom: 10px; left: 50%; transform: translateX(-50%);
+    background: rgba(15,34,68,0.85); color: #fff; font-size: 11px; font-weight: 700;
+    letter-spacing: 2px; padding: 5px 16px; border-radius: 3px; white-space: nowrap; }
+  .fotos-secundarias { display: flex; flex-shrink: 0; }
+  .fotos-secundarias img { width: 50%; height: 145px; object-fit: cover; display: block; }
 
   /* CUERPO */
-  .body-grid { display: flex; gap: 0; padding: 28px 36px; }
-  .col-izq { flex: 1; padding-right: 28px; border-right: 1px solid #e8e8e8; }
-  .col-der { width: 220px; padding-left: 28px; }
+  .body-grid { display: flex; padding: 14px 32px 10px; flex: 1; overflow: hidden; min-height: 0; }
+  .col-izq { flex: 1; padding-right: 22px; border-right: 1px solid #e8e8e8; overflow: hidden; }
+  .col-der { width: 195px; padding-left: 20px; display: flex; flex-direction: column; align-items: center; }
 
-  .section-label { font-size: 11px; font-weight: 700; letter-spacing: 2px; color: #0f2244; text-transform: uppercase; margin-bottom: 10px; }
-  .descripcion { font-size: 12.5px; line-height: 1.75; color: #444; white-space: pre-wrap; }
+  .section-label { font-size: 10px; font-weight: 700; letter-spacing: 2px; color: #0f2244; text-transform: uppercase; margin-bottom: 7px; }
+  .descripcion { font-size: 11px; line-height: 1.6; color: #444; white-space: pre-wrap;
+    overflow: hidden; display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 11; }
 
   /* ATRIBUTOS */
-  .atributos-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 4px 8px; margin-bottom: 20px; }
+  .atributos-grid { display: grid; grid-template-columns: repeat(2, 1fr); width: 100%; margin-bottom: 10px; }
+  .atributo-item { display:flex;flex-direction:column;align-items:center;text-align:center;gap:3px;padding:7px 3px; }
+  .atributo-item span { font-size:10px;color:#333;line-height:1.3; }
 
   /* QR */
-  .qr-bloque { margin-top: 16px; display: flex; flex-direction: column; align-items: center; gap: 8px; }
-  .qr-bloque img { width: 130px; height: 130px; }
-  .qr-bloque p { font-size: 10px; color: #666; text-align: center; line-height: 1.4; }
+  .qr-bloque { display: flex; flex-direction: column; align-items: center; gap: 5px; margin-top: auto; padding-bottom: 4px; }
+  .qr-bloque img { width: 105px; height: 105px; }
+  .qr-bloque p { font-size: 9px; color: #666; text-align: center; line-height: 1.4; }
+  .qr-bloque .qr-site { font-size: 10px; font-weight: 700; color: #0f2244; }
 
   /* FOOTER */
-  .footer { border-top: 1px solid #e8e8e8; margin: 0 36px; padding: 16px 0; display: flex; align-items: center; justify-content: space-between; }
-  .footer-brand { display: flex; align-items: center; gap: 10px; }
-  .footer-brand .nombre { font-family: 'Playfair Display', Georgia, serif; font-size: 16px; font-weight: 700; color: #0f2244; }
-  .footer-brand .mat { font-size: 10px; color: #888; letter-spacing: 1px; text-transform: uppercase; }
-  .footer-tel { font-size: 22px; font-weight: 700; color: #0f2244; font-family: 'Lato', sans-serif; display: flex; align-items: center; gap: 6px; }
-  .footer-tel svg { color: #c9a84c; }
-  .bottom-bar { background: #0f2244; height: 8px; }
+  .footer { border-top: 1px solid #e8e8e8; margin: 0 32px; padding: 9px 0; display: flex; align-items: center; justify-content: space-between; flex-shrink: 0; }
+  .footer-brand .nombre { font-family: 'Playfair Display', Georgia, serif; font-size: 13px; font-weight: 700; color: #0f2244; }
+  .footer-brand .mat { font-size: 9px; color: #888; letter-spacing: 1px; text-transform: uppercase; }
+  .footer-tel { font-size: 19px; font-weight: 700; color: #0f2244; display: flex; align-items: center; gap: 5px; }
+  .bottom-bar { background: #0f2244; height: 7px; flex-shrink: 0; }
 
-  /* PRINT */
   @media print {
     body { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
     .no-print { display: none !important; }
