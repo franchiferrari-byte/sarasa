@@ -536,10 +536,9 @@
 <script>
 if (sessionStorage.getItem('lf_admin') !== 'ok') window.location.href = 'login.html';
 
-// En el panel admin usamos la service key para bypassear RLS y ver/editar todas las propiedades
 const DB = window.supabase.createClient(
   CONFIG.SUPABASE_URL,
-  CONFIG.SUPABASE_SERVICE_KEY || CONFIG.SUPABASE_KEY
+  CONFIG.SUPABASE_KEY
 );
 let fotos = [];
 
