@@ -288,13 +288,14 @@
             <div class="campo"><label>Tipo de propiedad</label>
               <select id="tipo">
                 <option value="Casa">Casa</option>
+                <option value="Duplex">Duplex</option>
                 <option value="Departamento">Departamento</option>
-                <option value="Dúplex">Dúplex</option>
+                <option value="Lote / Terreno">Lote / Terreno</option>
+                <option value="Finca">Finca</option>
+                <option value="Bodega">Bodega</option>
                 <option value="Complejo">Complejo</option>
-                <option value="Terreno">Terreno</option>
-                <option value="Local">Local</option>
-                <option value="Rural">Rural</option>
-                <option value="Oficina">Oficina</option>
+                <option value="Local / Oficina">Local / Oficina</option>
+                <option value="Galpon">Galpon</option>
               </select>
             </div>
             <div class="campo"><label>Precio</label><input type="number" id="precio" placeholder="185000" /></div>
@@ -442,13 +443,14 @@
         <div class="campo"><label>Tipo de propiedad</label>
           <select id="edit-tipo">
             <option value="Casa">Casa</option>
+            <option value="Duplex">Duplex</option>
             <option value="Departamento">Departamento</option>
-            <option value="Dúplex">Dúplex</option>
+            <option value="Lote / Terreno">Lote / Terreno</option>
+            <option value="Finca">Finca</option>
+            <option value="Bodega">Bodega</option>
             <option value="Complejo">Complejo</option>
-            <option value="Terreno">Terreno</option>
-            <option value="Local">Local</option>
-            <option value="Rural">Rural</option>
-            <option value="Oficina">Oficina</option>
+            <option value="Local / Oficina">Local / Oficina</option>
+            <option value="Galpon">Galpon</option>
           </select>
         </div>
         <div class="campo"><label>Localidad</label>
@@ -750,7 +752,7 @@ async function abrirEdicion(id) {
   document.getElementById('edit-id').value = p.id;
   document.getElementById('edit-titulo').value = p.titulo || '';
   document.getElementById('edit-operacion').value = p.tipo_operacion || 'Venta';
-  document.getElementById('edit-tipo').value = p.tipo_propiedad || 'Casa';
+  document.getElementById('edit-tipo').value = normalizarTipo(p.tipo_propiedad) || 'Casa';
   document.getElementById('edit-ciudad').value = p.ciudad || 'Godoy Cruz';
   document.getElementById('edit-precio').value = p.precio || '';
   document.getElementById('edit-moneda').value = p.moneda || 'USD';
@@ -959,6 +961,25 @@ async function duplicarPropiedad() {
   cargarStats();
   // Abrir el modal de edición de la copia para que el usuario la revise y active
   setTimeout(() => abrirEdicion(nueva.id), 500);
+}
+
+// Normaliza tipos viejos al nuevo esquema unificado
+function normalizarTipo(tipo) {
+  if (!tipo) return 'Casa';
+  const t = tipo.trim();
+  const mapa = {
+    'Terreno': 'Lote / Terreno',
+    'Lote': 'Lote / Terreno',
+    'Rural': 'Lote / Terreno',
+    'Finca': 'Finca',
+    'Local': 'Local / Oficina',
+    'Oficina': 'Local / Oficina',
+    'Dúplex': 'Duplex',
+    'Duplex': 'Duplex',
+    'Galpón': 'Galpon',
+    'Galpon': 'Galpon',
+  };
+  return mapa[t] || t;
 }
 
 // Genera un slug a partir de un texto (sin depender del servidor)
