@@ -89,32 +89,33 @@ async function cargarPropiedades(filtros = {}) {
       .select('*, propiedades_fotos(url, orden, es_principal)')
       .eq('activa', true).order('created_at', { ascending: false });
     if (filtros.operacion) query = query.ilike('tipo_operacion', '%' + filtros.operacion + '%');
-    if (filtros.tipo) {
-      if (filtros.tipo === 'Lote / Terreno') {
-        query = query.or('tipo_propiedad.ilike.%Lote%,tipo_propiedad.ilike.%Terreno%,tipo_propiedad.ilike.%Rural%');
-      } else if (filtros.tipo === 'Local / Oficina') {
-        query = query.or('tipo_propiedad.ilike.%Local%,tipo_propiedad.ilike.%Oficina%');
-      } else if (filtros.tipo === 'Duplex') {
-        query = query.or('tipo_propiedad.ilike.%Duplex%,tipo_propiedad.ilike.%Dúplex%');
-      } else {
-        query = query.ilike('tipo_propiedad', '%' + filtros.tipo + '%');
-      }
-    }
     if (filtros.ciudad) {
-      // 'Mendoza' debe incluir propiedades viejas guardadas como 'Capital'
       if (filtros.ciudad === 'Mendoza') {
         query = query.or('ciudad.ilike.%Mendoza%,ciudad.ilike.%Capital%');
       } else {
         query = query.ilike('ciudad', '%' + filtros.ciudad + '%');
       }
     }
-    if (filtros.precio)    query = query.lte('precio', Number(filtros.precio));
+    if (filtros.precio) query = query.lte('precio', Number(filtros.precio));
     const { data, error } = await query;
     if (error) throw error;
+
+    // Filtrar tipo en JS para manejar alias correctamente
+    let resultado = data || [];
+    if (filtros.tipo) {
+      const t = filtros.tipo.toLowerCase();
+      resultado = resultado.filter(p => {
+        const pt = (p.tipo_propiedad || '').toLowerCase();
+        if (t === 'lote / terreno') return pt.includes('lote') || pt.includes('terreno') || pt.includes('rural');
+        if (t === 'local / oficina') return pt.includes('local') || pt.includes('oficina');
+        if (t === 'duplex') return pt.includes('duplex') || pt.includes('dúplex');
+        return pt.includes(t);
+      });
+    }
     const contEl = document.getElementById('resultado-count');
-    if (contEl) contEl.textContent = data ? data.length : 0;
-    grilla.innerHTML = data && data.length > 0
-      ? data.map(renderCard).join('')
+    if (contEl) contEl.textContent = resultado.length;
+    grilla.innerHTML = resultado.length > 0
+      ? resultado.map(renderCard).join('')
       : '<p style="color:var(--gris-texto);padding:40px;text-align:center;grid-column:1/-1;">No se encontraron propiedades.</p>';
   } catch(e) {
     grilla.innerHTML = `<p style="color:#c62828;padding:40px;text-align:center;grid-column:1/-1;">Error: ${e.message}</p>`;
