@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <link rel="icon" type="image/png" href="img/favicon.png" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Propiedades en Mendoza — Lucas Franchi Inmobiliaria</title>
+  <meta name="description" content="Explorá todas las propiedades disponibles en el Gran Mendoza. Casas, departamentos, terrenos y más. Lucas Franchi, Corredor Inmobiliario Mat. 1740." />
+  <link rel="canonical" href="https://lucasfranchi.com.ar/propiedades.html" />
+  <meta property="og:type" content="website" />
+  <meta property="og:url" content="https://lucasfranchi.com.ar/propiedades.html" />
+  <meta property="og:title" content="Propiedades en Mendoza — Lucas Franchi Inmobiliaria" />
+  <meta property="og:description" content="Explorá todas las propiedades disponibles en el Gran Mendoza. Casas, departamentos, terrenos y más." />
+  <meta property="og:image" content="https://lucasfranchi.com.ar/img/logo.jpeg" />
+  <meta property="og:locale" content="es_AR" />
+  <link rel="stylesheet" href="css/estilos.css" />
+</head>
+  <!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-T5YCECGL58"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'G-T5YCECGL58');
+</script>
+<body>
+
+<!-- NAV -->
+<nav class="nav">
+  <a href="index.html" class="nav-logo">
+    <img src="img/logo.jpeg" alt="Lucas Franchi" onerror="this.style.display='none'" />
+    <div class="nav-logo-text">
+      <strong>LUCAS FRANCHI</strong>
+      <span>Corredor Inmobiliario · Mat. 1740</span>
+    </div>
+  </a>
+  <div class="nav-links">
+    <a href="index.html">Inicio</a>
+    <a href="propiedades.html">Propiedades</a>
+    <a href="mapa.html">Mapa de propiedades</a>
+    <a href="index.html#contacto">Contacto</a>
+    <a href="#" class="nav-wsp" id="nav-wsp">WhatsApp</a>
+  </div>
+</nav>
+
+<!-- HEADER -->
+<div class="seccion" style="padding-top:40px;padding-bottom:10px;">
+  <h1 style="color:var(--azul);font-family:Arial,sans-serif;">
+    Propiedades disponibles
+  </h1>
+  <p id="resultado-count" style="display:none;"></p>
+</div>
+
+<!-- FILTROS -->
+<div class="seccion" style="padding-top:0;padding-bottom:24px;">
+  <div style="display:flex;flex-wrap:wrap;gap:12px;align-items:center;">
+    <select id="f-operacion" style="padding:8px 14px;border:1px solid var(--gris-borde);border-radius:8px;font-size:14px;">
+      <option value="">Operación</option>
+      <option value="venta">Venta</option>
+      <option value="alquiler">Alquiler</option>
+    </select>
+    <select id="f-tipo" style="padding:8px 14px;border:1px solid var(--gris-borde);border-radius:8px;font-size:14px;">
+      <option value="">Tipo</option>
+      <option value="casa">Casa</option>
+      <option value="departamento">Departamento</option>
+      <option value="lote">Lote</option>
+      <option value="local">Local</option>
+      <option value="oficina">Oficina</option>
+    </select>
+    <select id="f-ciudad" style="padding:8px 14px;border:1px solid var(--gris-borde);border-radius:8px;font-size:14px;">
+      <option value="">Ciudad</option>
+      <option value="Godoy Cruz">Godoy Cruz</option>
+      <option value="Capital">Capital</option>
+      <option value="Luján de Cuyo">Luján de Cuyo</option>
+      <option value="Maipú">Maipú</option>
+      <option value="Las Heras">Las Heras</option>
+      <option value="Guaymallén">Guaymallén</option>
+    </select>
+    <button onclick="aplicarFiltros()" style="padding:8px 20px;background:var(--azul);color:#fff;border:none;border-radius:8px;font-size:14px;font-weight:600;cursor:pointer;">Buscar</button>
+    <button onclick="limpiarFiltros()" style="padding:8px 16px;background:transparent;color:var(--gris-texto);border:1px solid var(--gris-borde);border-radius:8px;font-size:14px;cursor:pointer;">Limpiar</button>
+  </div>
+</div>
+
+<!-- GRID -->
+<div class="seccion" style="padding-top:0;padding-bottom:60px;">
+  <div id="grilla-propiedades" class="grilla"></div>
+</div>
+
+<!-- FOOTER -->
+<footer class="footer">
+  <div class="footer-grid">
+    <div class="footer-brand">
+      <img src="img/logo.jpeg" alt="Lucas Franchi" onerror="this.style.display='none'" />
+      <p>Te ayudamos a encontrar el hogar ideal o la mejor inversión en el Gran Mendoza.</p>
+    </div>
+    <div class="footer-col">
+      <h4>Navegación</h4>
+      <a href="index.html">Inicio</a>
+      <a href="propiedades.html">Propiedades</a>
+      <a href="mapa.html">Mapa de propiedades</a>
+      <a href="index.html#contacto">Contacto</a>
+    </div>
+    <div class="footer-col">
+      <h4>Zonas</h4>
+      <a href="propiedades.html?ciudad=Godoy Cruz">Godoy Cruz</a>
+      <a href="propiedades.html?ciudad=Capital">Capital</a>
+      <a href="propiedades.html?ciudad=Luján de Cuyo">Luján de Cuyo</a>
+      <a href="propiedades.html?ciudad=Maipú">Maipú</a>
+      <a href="propiedades.html">Más zonas</a>
+    </div>
+    <div class="footer-col">
+      <h4>Contacto</h4>
+      <a href="#" id="footer-wsp" target="_blank" rel="noopener">+54 9 2612 09-6351</a>
+      <a href="mailto:lucas@lucasfranchi.com.ar" target="_blank">lucas@lucasfranchi.com.ar</a>
+      <a href="https://www.instagram.com/lucasfranchiccpim/" target="_blank">Instagram</a>
+      <a href="https://www.facebook.com/lucasfranchiccpim" target="_blank">Facebook</a>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    <div class="footer-copy">© 2025 Lucas Franchi · Corredor Inmobiliario Mat. 1740 · Mendoza, Argentina</div>
+    <div class="footer-social">
+      <a href="https://www.instagram.com/lucasfranchiccpim/" target="_blank" class="social-btn">
+        <svg width="16" height="16" fill="none" viewBox="0 0 24 24"><rect x="2" y="2" width="20" height="20" rx="5" stroke="currentColor" stroke-width="2"/><circle cx="12" cy="12" r="4" stroke="currentColor" stroke-width="2"/><circle cx="17.5" cy="6.5" r="1" fill="currentColor"/></svg>
+      </a>
+      <a href="https://www.facebook.com/lucasfranchiccpim" target="_blank" class="social-btn">
+        <svg width="16" height="16" fill="none" viewBox="0 0 24 24"><path d="M18 2h-3a5 5 0 00-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 011-1h3z" stroke="currentColor" stroke-width="2"/></svg>
+      </a>
+      <a href="#" id="footer-wsp-ico" class="social-btn" target="_blank" rel="noopener">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+      </a>
+    </div>
+  </div>
+</footer>
+
+<script src="js/config.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="js/propiedades.js"></script>
+<script>
+  document.getElementById('nav-wsp').href = `https://wa.me/${CONFIG.WHATSAPP}`;
+  document.getElementById('footer-wsp').href = `https://wa.me/${CONFIG.WHATSAPP}`;
+  document.getElementById('footer-wsp-ico').href = `https://wa.me/${CONFIG.WHATSAPP}`;
+
+  // Leer parámetros de URL (ej: propiedades.html?ciudad=Godoy Cruz)
+  const params = new URLSearchParams(window.location.search);
+  const filtrosIniciales = {};
+  if (params.get('ciudad'))    { filtrosIniciales.ciudad    = params.get('ciudad');    document.getElementById('f-ciudad').value    = params.get('ciudad'); }
+  if (params.get('tipo'))      { filtrosIniciales.tipo      = params.get('tipo');      document.getElementById('f-tipo').value      = params.get('tipo'); }
+  if (params.get('operacion')) { filtrosIniciales.operacion = params.get('operacion'); document.getElementById('f-operacion').value = params.get('operacion'); }
+
+  cargarPropiedades(filtrosIniciales);
+
+  function aplicarFiltros() {
+    const filtros = {};
+    const op  = document.getElementById('f-operacion').value;
+    const tp  = document.getElementById('f-tipo').value;
+    const ciu = document.getElementById('f-ciudad').value;
+    if (op)  filtros.operacion = op;
+    if (tp)  filtros.tipo      = tp;
+    if (ciu) filtros.ciudad    = ciu;
+    cargarPropiedades(filtros);
+  }
+
+  function limpiarFiltros() {
+    document.getElementById('f-operacion').value = '';
+    document.getElementById('f-tipo').value = '';
+    document.getElementById('f-ciudad').value = '';
+    cargarPropiedades({});
+  }
+</script>
+
+</body>
+</html>
