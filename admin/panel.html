@@ -248,7 +248,7 @@
     </div>
     <div class="sidebar-section" style="margin-top:16px;">
       <div class="sidebar-label">Accesos rápidos</div>
-      <div class="menu-item" onclick="window.open('../propiedades.html','_blank')">
+      <div class="menu-item" onclick="window.open('/propiedades.html','_blank')">
         <span class="ico">🔍</span> Ver propiedades
       </div>
     </div>
@@ -317,10 +317,10 @@
           <h3>📍 Ubicación</h3>
           <div class="form-row">
             <div class="campo"><label>Zona / Barrio</label><input type="text" id="zona" placeholder="Ej: Barrio Bombal" /></div>
-            <div class="campo"><label>Ciudad</label>
+            <div class="campo"><label>Localidad</label>
               <select id="ciudad" onchange="centrarMapaCiudad(this.value, mapaAdmin)">
                 <option value="Godoy Cruz">Godoy Cruz</option>
-                <option value="Capital">Capital</option>
+                <option value="Mendoza">Mendoza</option>
                 <option value="Luján de Cuyo">Luján de Cuyo</option>
                 <option value="Maipú">Maipú</option>
                 <option value="Las Heras">Las Heras</option>
@@ -451,10 +451,10 @@
             <option value="Oficina">Oficina</option>
           </select>
         </div>
-        <div class="campo"><label>Ciudad</label>
+        <div class="campo"><label>Localidad</label>
           <select id="edit-ciudad" onchange="centrarMapaCiudad(this.value, mapaEdit)">
             <option value="Godoy Cruz">Godoy Cruz</option>
-            <option value="Capital">Capital</option>
+            <option value="Mendoza">Mendoza</option>
             <option value="Luján de Cuyo">Luján de Cuyo</option>
             <option value="Maipú">Maipú</option>
             <option value="Las Heras">Las Heras</option>
@@ -728,7 +728,7 @@ async function cargarLista() {
       </div>
       <div class="prop-row-precio">${precio}</div>
       <div class="prop-row-actions">
-        <button class="btn-ver" onclick="window.open('../' + (p.slug ? 'propiedad.html?slug=' + p.slug : 'propiedad.html?id=' + p.id),'_blank')">Ver</button>
+        <button class="btn-ver" onclick="window.open('/' + (p.slug ? 'propiedad.html?slug=' + p.slug : 'propiedad.html?id=' + p.id),'_blank')">Ver</button>
         <button class="btn-ficha" onclick="generarFicha('${p.id}')">📄 Ficha</button>
         <button class="btn-editar" onclick="abrirEdicion('${p.id}')">Editar</button>
         <button class="btn-del" onclick="eliminar('${p.id}')">Eliminar</button>
@@ -933,7 +933,12 @@ async function duplicarPropiedad() {
   datos.titulo = datos.titulo + ' (copia)';
   datos.activa = false;
 
-  // Asegurar ciudad válida para que aparezca en filtros
+  // Generar slug único para la copia
+  const slugBase = generarSlugLocal(datos.titulo);
+  const sufijo = Date.now().toString(36).slice(-4);
+  datos.slug = slugBase + '-' + sufijo;
+
+  // Asegurar localidad válida para que aparezca en filtros
   if (!datos.ciudad) datos.ciudad = 'Godoy Cruz';
 
   // Asegurar lat/lng como números o null para aparecer en el mapa
@@ -949,11 +954,23 @@ async function duplicarPropiedad() {
   }
 
   cerrarModal();
-  mostrarMsg('Propiedad duplicada. Verificá ciudad y ubicación antes de activarla.', 'ok');
+  mostrarMsg('Propiedad duplicada. Revisá y activá la copia desde "Editar" antes de publicarla.', 'ok');
   cargarLista();
   cargarStats();
   // Abrir el modal de edición de la copia para que el usuario la revise y active
   setTimeout(() => abrirEdicion(nueva.id), 500);
+}
+
+// Genera un slug a partir de un texto (sin depender del servidor)
+function generarSlugLocal(texto) {
+  return texto
+    .toLowerCase()
+    .normalize('NFD').replace(/[\u0300-\u036f]/g, '') // quitar tildes
+    .replace(/[^a-z0-9\s-]/g, '')
+    .trim()
+    .replace(/\s+/g, '-')
+    .replace(/-+/g, '-')
+    .slice(0, 60);
 }
 
 
@@ -980,6 +997,7 @@ document.addEventListener('DOMContentLoaded', cargarStats);
 const MENDOZA = [-32.8908, -68.8458]; // Mendoza Capital - Plaza Independencia
 const CIUDADES_CENTRO = {
   'Capital':      [-32.8908, -68.8458],
+  'Mendoza':      [-32.8908, -68.8458],
   'Godoy Cruz':   [-32.9245, -68.8312],
   'Guaymallén':   [-32.8900, -68.7750],
   'Luján de Cuyo':[-33.0385, -68.8764],
@@ -989,6 +1007,7 @@ const CIUDADES_CENTRO = {
 // Nombre real para Nominatim + viewbox [minLng, minLat, maxLng, maxLat]
 const CIUDADES_GEO = {
   'Capital':       { nombre: 'Mendoza',       viewbox: '-68.88,-32.91,-68.81,-32.87' },
+  'Mendoza':       { nombre: 'Mendoza',       viewbox: '-68.88,-32.91,-68.81,-32.87' },
   'Godoy Cruz':    { nombre: 'Godoy Cruz',    viewbox: '-68.87,-32.95,-68.80,-32.90' },
   'Guaymallén':    { nombre: 'Guaymallén',    viewbox: '-68.85,-32.95,-68.70,-32.83' },
   'Luján de Cuyo': { nombre: 'Luján de Cuyo', viewbox: '-68.92,-33.07,-68.82,-32.99' },
@@ -1116,8 +1135,8 @@ async function geocodificar(direccion, statusId, latId, lngId, mapa, markerRef, 
 function geocodificarDireccion() {
   clearTimeout(geocodTimer);
   const val = document.getElementById('direccion').value;
-  const ciudadKey = document.getElementById('ciudad') ? document.getElementById('ciudad').value : 'Capital';
-  const geo = CIUDADES_GEO[ciudadKey] || CIUDADES_GEO['Capital'];
+  const ciudadKey = document.getElementById('ciudad') ? document.getElementById('ciudad').value : 'Mendoza';
+  const geo = CIUDADES_GEO[ciudadKey] || CIUDADES_GEO['Mendoza'];
   geocodTimer = setTimeout(() => {
     geocodificar(val + ', ' + geo.nombre + ', Mendoza, Argentina', 'geocod-status', 'lat', 'lng',
       mapaAdmin, { get current() { return markerAdmin; }, set current(v) { markerAdmin = v; } }, null, geo.viewbox);
@@ -1127,8 +1146,8 @@ function geocodificarDireccion() {
 function geocodificarDireccionEdit() {
   clearTimeout(geocodTimerEdit);
   const val = document.getElementById('edit-direccion').value;
-  const ciudadKey = document.getElementById('edit-ciudad') ? document.getElementById('edit-ciudad').value : 'Capital';
-  const geo = CIUDADES_GEO[ciudadKey] || CIUDADES_GEO['Capital'];
+  const ciudadKey = document.getElementById('edit-ciudad') ? document.getElementById('edit-ciudad').value : 'Mendoza';
+  const geo = CIUDADES_GEO[ciudadKey] || CIUDADES_GEO['Mendoza'];
   geocodTimerEdit = setTimeout(() => {
     geocodificar(val + ', ' + geo.nombre + ', Mendoza, Argentina', 'geocod-status-edit', 'edit-lat', 'edit-lng',
       mapaEdit, { get current() { return markerEdit; }, set current(v) { markerEdit = v; } }, null, geo.viewbox);
@@ -1256,7 +1275,7 @@ async function generarFicha(id) {
     const specs = [
       ['Tipo', p.tipo_propiedad],
       ['Operación', p.tipo_operacion],
-      ['Ciudad', p.ciudad],
+      ['Localidad', p.ciudad],
       ['Zona / Barrio', p.zona],
       ['Dirección', p.direccion],
       ['Dormitorios', p.dormitorios],
