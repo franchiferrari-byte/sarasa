@@ -89,7 +89,17 @@ async function cargarPropiedades(filtros = {}) {
       .select('*, propiedades_fotos(url, orden, es_principal)')
       .eq('activa', true).order('created_at', { ascending: false });
     if (filtros.operacion) query = query.ilike('tipo_operacion', '%' + filtros.operacion + '%');
-    if (filtros.tipo)      query = query.ilike('tipo_propiedad', '%' + filtros.tipo + '%');
+    if (filtros.tipo) {
+      if (filtros.tipo === 'Lote / Terreno') {
+        query = query.or('tipo_propiedad.ilike.%Lote%,tipo_propiedad.ilike.%Terreno%,tipo_propiedad.ilike.%Rural%');
+      } else if (filtros.tipo === 'Local / Oficina') {
+        query = query.or('tipo_propiedad.ilike.%Local%,tipo_propiedad.ilike.%Oficina%');
+      } else if (filtros.tipo === 'Duplex') {
+        query = query.or('tipo_propiedad.ilike.%Duplex%,tipo_propiedad.ilike.%Dúplex%');
+      } else {
+        query = query.ilike('tipo_propiedad', '%' + filtros.tipo + '%');
+      }
+    }
     if (filtros.ciudad) {
       // 'Mendoza' debe incluir propiedades viejas guardadas como 'Capital'
       if (filtros.ciudad === 'Mendoza') {
