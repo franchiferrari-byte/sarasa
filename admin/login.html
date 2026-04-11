@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <link rel="icon" type="image/png" href="../img/favicon.png" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Acceso Admin — Lucas Franchi</title>
+  <link rel="stylesheet" href="../css/estilos.css" />
+  <style>
+    body { display: flex; align-items: center; justify-content: center; min-height: 100vh; }
+    .login-box {
+      background: var(--azul-med);
+      border: 1px solid var(--borde);
+      border-radius: var(--radio-lg);
+      padding: 40px;
+      width: 100%;
+      max-width: 400px;
+      text-align: center;
+    }
+    .login-box img { height: 64px; margin: 0 auto 24px; }
+    .login-box h2 { color: var(--dorado); font-size: 22px; margin-bottom: 6px; }
+    .login-box p { color: var(--gris); font-size: 13px; margin-bottom: 28px; }
+    .campo { text-align: left; margin-bottom: 16px; }
+    .campo label { color: var(--gris); font-size: 12px; display: block; margin-bottom: 6px; }
+    .campo input {
+      width: 100%;
+      background: var(--azul);
+      border: 1px solid var(--borde);
+      border-radius: var(--radio);
+      color: var(--blanco);
+      font-size: 14px;
+      padding: 12px 14px;
+      outline: none;
+      transition: border-color .2s;
+    }
+    .campo input:focus { border-color: var(--dorado); }
+    .btn-login {
+      width: 100%;
+      background: var(--dorado);
+      color: var(--azul);
+      border: none;
+      border-radius: var(--radio);
+      padding: 14px;
+      font-size: 15px;
+      font-weight: 500;
+      cursor: pointer;
+      margin-top: 8px;
+      transition: background .2s;
+    }
+    .btn-login:hover { background: var(--dorado-cl); }
+    .error { color: #e57373; font-size: 13px; margin-top: 12px; display: none; }
+  </style>
+</head>
+  <!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-T5YCECGL58"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'G-T5YCECGL58');
+</script>
+<body>
+  <div class="login-box">
+    <img src="../img/logo.jpeg" alt="Lucas Franchi" onerror="this.style.display='none'" />
+    <h2>Panel de administración</h2>
+    <p>Acceso exclusivo — Lucas Franchi Inmobiliaria</p>
+
+    <div class="campo">
+      <label>Contraseña</label>
+      <input type="password" id="password" placeholder="••••••••••" onkeydown="if(event.key==='Enter')login()" />
+    </div>
+    <button class="btn-login" onclick="login()">Ingresar</button>
+    <p class="error" id="error-msg">Contraseña incorrecta.</p>
+  </div>
+
+  <script src="../js/config.js"></script>
+  <script>
+    // Si ya está logueado, redirigir al panel
+    if (sessionStorage.getItem('lf_admin') === 'ok') {
+      window.location.href = 'panel.html';
+    }
+
+    function login() {
+      const pass = document.getElementById('password').value;
+      if (pass === CONFIG.ADMIN_PASSWORD) {
+        sessionStorage.setItem('lf_admin', 'ok');
+        window.location.href = 'panel.html';
+      } else {
+        document.getElementById('error-msg').style.display = 'block';
+        document.getElementById('password').value = '';
+      }
+    }
+  </script>
+</body>
+</html>
