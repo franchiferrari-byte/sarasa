@@ -1249,13 +1249,14 @@ async function generarFicha(id) {
       .eq('id', id).single();
     if (error || !p) throw new Error('No se pudo cargar la propiedad');
 
+    // Fotos ordenadas: principal primero, luego por orden — máximo 3
     const fotos = (p.propiedades_fotos || []).sort((a, b) => {
-      if (a.es_principal) return -1;
-      if (b.es_principal) return 1;
+      if (a.es_principal && !b.es_principal) return -1;
+      if (!a.es_principal && b.es_principal) return 1;
       return (a.orden || 0) - (b.orden || 0);
-    });
+    }).slice(0, 3);
 
-    // 2. Generar QR como dataURL usando qrcodejs
+    // 2. Generar QR
     const propUrl = p.slug
       ? `https://${window.location.hostname}/propiedad.html?slug=${p.slug}`
       : `https://${window.location.hostname}/propiedad.html?id=${p.id}`;
@@ -1263,7 +1264,7 @@ async function generarFicha(id) {
       const div = document.createElement('div');
       div.style.cssText = 'position:absolute;left:-9999px;';
       document.body.appendChild(div);
-      new QRCode(div, { text: propUrl, width: 180, height: 180, colorDark: '#0f2244', colorLight: '#ffffff', correctLevel: QRCode.CorrectLevel.M });
+      new QRCode(div, { text: propUrl, width: 160, height: 160, colorDark: '#0f2244', colorLight: '#ffffff', correctLevel: QRCode.CorrectLevel.M });
       setTimeout(() => {
         const canvas = div.querySelector('canvas');
         resolve(canvas ? canvas.toDataURL('image/png') : '');
@@ -1271,98 +1272,163 @@ async function generarFicha(id) {
       }, 80);
     });
 
-    // 3. Construir specs
-    const specs = [
-      ['Tipo', p.tipo_propiedad],
-      ['Operación', p.tipo_operacion],
-      ['Localidad', p.ciudad],
-      ['Zona / Barrio', p.zona],
-      ['Dirección', p.direccion],
-      ['Dormitorios', p.dormitorios],
-      ['Baños', p.banos],
-      ['Cocheras', p.cocheras],
-      ['Sup. cubierta', p.sup_cubierta ? p.sup_cubierta + ' m²' : null],
-      ['Sup. total', p.sup_total ? p.sup_total + ' m²' : null],
-      ['Antigüedad', p.antiguedad ? p.antiguedad + ' años' : null],
-      ['Apta crédito', p.apta_credito ? 'Sí' : null],
-    ].filter(([, v]) => v);
+    // 3. Specs con iconos SVG inline
+    const iconCama = `<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#0f2244" stroke-width="1.8"><path d="M2 9V19M22 9V19M2 14H22M6 9V7a2 2 0 012-2h8a2 2 0 012 2v2"/></svg>`;
+    const iconBano = `<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#0f2244" stroke-width="1.8"><path d="M4 12h16v4a4 4 0 01-4 4H8a4 4 0 01-4-4v-4z"/><path d="M4 12V7a2 2 0 012-2h1v2"/><path d="M9 20v2M15 20v2"/></svg>`;
+    const iconCochera = `<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#0f2244" stroke-width="1.8"><rect x="2" y="10" width="20" height="10" rx="2"/><path d="M5 10L7 4h10l2 6"/><circle cx="7.5" cy="17" r="1.5"/><circle cx="16.5" cy="17" r="1.5"/></svg>`;
+    const iconM2 = `<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#0f2244" stroke-width="1.8"><rect x="3" y="3" width="18" height="18" rx="1"/><path d="M3 9h18M9 3v18"/></svg>`;
+    const iconPin = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#c9a84c" stroke-width="2.5"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z"/><circle cx="12" cy="9" r="2.5"/></svg>`;
 
-    const specsHTML = specs.map(([k, v]) => `
-      <tr>
-        <td style="background:#f5f7fa;font-weight:700;color:#0f2244;padding:8px 12px;border:1px solid #e0e0e0;width:35%;">${k}</td>
-        <td style="padding:8px 12px;border:1px solid #e0e0e0;color:#333;">${v}</td>
-      </tr>`).join('');
+    const atributos = [];
+    if (p.dormitorios) atributos.push({ icon: iconCama, label: p.dormitorios + ' Dormitorio' + (p.dormitorios > 1 ? 's' : '') });
+    if (p.banos)       atributos.push({ icon: iconBano, label: p.banos + ' Baño' + (p.banos > 1 ? 's' : '') });
+    if (p.cocheras)    atributos.push({ icon: iconCochera, label: p.cocheras + ' Cochera' + (p.cocheras > 1 ? 's' : '') });
+    if (p.sup_cubierta) atributos.push({ icon: iconM2, label: p.sup_cubierta + ' m² cubiertos' });
+    if (p.sup_total)   atributos.push({ icon: iconM2, label: p.sup_total + ' m² totales' });
+    if (p.antiguedad)  atributos.push({ icon: iconM2, label: 'Antigüedad: ' + p.antiguedad + ' años' });
+    if (p.apta_credito) atributos.push({ icon: iconM2, label: 'Apta crédito' });
 
-    const fotosHTML = fotos.slice(0, 6).map(f =>
-      `<div style="width:48%;margin-bottom:12px;"><img src="${f.url}" style="width:100%;height:180px;object-fit:cover;border-radius:6px;display:block;" /></div>`
-    ).join('');
+    const atributosHTML = atributos.map(a => `
+      <div style="display:flex;flex-direction:column;align-items:center;text-align:center;gap:6px;padding:10px 8px;">
+        ${a.icon}
+        <span style="font-size:11px;color:#333;font-family:'Georgia',serif;line-height:1.3;">${a.label}</span>
+      </div>`).join('');
 
-    // 4. Abrir ventana HTML imprimible
+    // Layout fotos: 1 grande arriba, 2 secundarias abajo
+    const foto1 = fotos[0] ? fotos[0].url : '';
+    const foto2 = fotos[1] ? fotos[1].url : '';
+    const foto3 = fotos[2] ? fotos[2].url : '';
+
+    const ubicacionLabel = [p.direccion, p.zona, p.ciudad].filter(Boolean).join(' – ');
+    const operacionLabel = (p.tipo_operacion || 'VENTA').toUpperCase();
+    const tipoLabel = (p.tipo_propiedad || '').toUpperCase();
+    const tituloGrande = `${tipoLabel}${tipoLabel && operacionLabel ? ' EN ' : ''}${operacionLabel}`;
+
+    // 4. Ventana imprimible
     const win = window.open('', '_blank');
     win.document.write(`<!DOCTYPE html>
 <html lang="es">
 <head>
 <meta charset="UTF-8"/>
 <title>Ficha — ${p.titulo}</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=Lato:wght@300;400;700&display=swap" rel="stylesheet"/>
 <style>
   * { box-sizing: border-box; margin: 0; padding: 0; }
-  body { font-family: Arial, sans-serif; font-size: 13px; color: #333; background: #fff; }
-  .page { max-width: 780px; margin: 0 auto; padding: 32px; }
-  .header { background: #0f2244; color: #fff; padding: 24px 28px; border-radius: 8px 8px 0 0; margin-bottom: 24px; }
-  .header h1 { font-family: Georgia, serif; font-size: 24px; font-weight: 700; margin-bottom: 6px; }
-  .header p { color: #c9a84c; font-size: 14px; }
-  .section-title { font-size: 14px; font-weight: 700; color: #0f2244; text-transform: uppercase; letter-spacing: 1px; border-bottom: 2px solid #0f2244; padding-bottom: 6px; margin: 20px 0 12px; }
-  table { width: 100%; border-collapse: collapse; font-size: 13px; }
-  .desc { background: #f9f9f9; padding: 14px 16px; border-radius: 6px; line-height: 1.6; color: #444; white-space: pre-wrap; }
-  .fotos { display: flex; flex-wrap: wrap; gap: 2%; }
-  .qr-block { display: flex; align-items: center; gap: 28px; background: #f5f7fa; border-radius: 8px; padding: 20px 24px; margin-top: 24px; }
-  .qr-block img { width: 160px; height: 160px; flex-shrink: 0; }
-  .qr-text h3 { color: #0f2244; font-size: 16px; margin-bottom: 8px; }
-  .qr-text p { color: #555; font-size: 13px; margin-bottom: 4px; line-height: 1.5; }
-  .footer { text-align: center; margin-top: 24px; color: #999; font-size: 11px; font-style: italic; }
+  body { font-family: 'Lato', Arial, sans-serif; background: #fff; color: #222; }
+  .page { width: 794px; min-height: 1123px; margin: 0 auto; padding: 0; position: relative; }
+
+  /* HEADER */
+  .top-bar { background: #0f2244; padding: 0 36px; height: 8px; }
+  .gold-bar { background: #c9a84c; height: 3px; }
+  .titulo-bloque { padding: 28px 36px 20px; }
+  .titulo-bloque h1 { font-family: 'Playfair Display', Georgia, serif; font-size: 48px; font-weight: 900; color: #0f2244; line-height: 1; letter-spacing: -1px; }
+  .titulo-bloque .ubicacion { display:flex;align-items:center;gap:6px; margin-top: 8px; font-size: 13px; color: #c9a84c; font-weight: 700; letter-spacing: 0.5px; }
+
+  /* FOTOS */
+  .foto-principal { width: 100%; height: 340px; object-fit: cover; display: block; position: relative; }
+  .foto-principal-wrap { position: relative; }
+  .foto-label { position: absolute; bottom: 14px; left: 50%; transform: translateX(-50%);
+    background: rgba(15,34,68,0.85); color: #fff; font-family: 'Lato', sans-serif;
+    font-size: 13px; font-weight: 700; letter-spacing: 2px; padding: 6px 20px; border-radius: 3px; white-space: nowrap; }
+  .fotos-secundarias { display: flex; gap: 0; }
+  .fotos-secundarias img { width: 50%; height: 190px; object-fit: cover; display: block; }
+
+  /* CUERPO */
+  .body-grid { display: flex; gap: 0; padding: 28px 36px; }
+  .col-izq { flex: 1; padding-right: 28px; border-right: 1px solid #e8e8e8; }
+  .col-der { width: 220px; padding-left: 28px; }
+
+  .section-label { font-size: 11px; font-weight: 700; letter-spacing: 2px; color: #0f2244; text-transform: uppercase; margin-bottom: 10px; }
+  .descripcion { font-size: 12.5px; line-height: 1.75; color: #444; white-space: pre-wrap; }
+
+  /* ATRIBUTOS */
+  .atributos-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 4px 8px; margin-bottom: 20px; }
+
+  /* QR */
+  .qr-bloque { margin-top: 16px; display: flex; flex-direction: column; align-items: center; gap: 8px; }
+  .qr-bloque img { width: 130px; height: 130px; }
+  .qr-bloque p { font-size: 10px; color: #666; text-align: center; line-height: 1.4; }
+
+  /* FOOTER */
+  .footer { border-top: 1px solid #e8e8e8; margin: 0 36px; padding: 16px 0; display: flex; align-items: center; justify-content: space-between; }
+  .footer-brand { display: flex; align-items: center; gap: 10px; }
+  .footer-brand .nombre { font-family: 'Playfair Display', Georgia, serif; font-size: 16px; font-weight: 700; color: #0f2244; }
+  .footer-brand .mat { font-size: 10px; color: #888; letter-spacing: 1px; text-transform: uppercase; }
+  .footer-tel { font-size: 22px; font-weight: 700; color: #0f2244; font-family: 'Lato', sans-serif; display: flex; align-items: center; gap: 6px; }
+  .footer-tel svg { color: #c9a84c; }
+  .bottom-bar { background: #0f2244; height: 8px; }
+
+  /* PRINT */
   @media print {
     body { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
     .no-print { display: none !important; }
-    .page { padding: 16px; }
+    .page { width: 100%; }
+    @page { margin: 0; size: A4; }
   }
 </style>
 </head>
 <body>
+
+<div class="no-print" style="background:#f0f0f0;padding:12px 20px;display:flex;gap:10px;align-items:center;font-family:Arial,sans-serif;">
+  <button onclick="window.print()" style="background:#0f2244;color:#fff;border:none;padding:10px 22px;border-radius:6px;font-size:13px;cursor:pointer;font-weight:700;">🖨️ Imprimir / Guardar PDF</button>
+  <button onclick="window.close()" style="background:#ccc;color:#333;border:none;padding:10px 16px;border-radius:6px;font-size:13px;cursor:pointer;">Cerrar</button>
+</div>
+
 <div class="page">
-  <div class="no-print" style="margin-bottom:16px;display:flex;gap:10px;">
-    <button onclick="window.print()" style="background:#0f2244;color:#fff;border:none;padding:10px 20px;border-radius:6px;font-size:13px;cursor:pointer;font-weight:600;">🖨️ Imprimir</button>
-    <button onclick="window.close()" style="background:#eee;color:#333;border:none;padding:10px 20px;border-radius:6px;font-size:13px;cursor:pointer;">Cerrar</button>
-    <span style="color:#888;font-size:12px;align-self:center;">💡 También podés seleccionar el texto y editarlo antes de imprimir</span>
+  <div class="top-bar"></div>
+  <div class="gold-bar"></div>
+
+  <div class="titulo-bloque">
+    <h1>${tituloGrande}</h1>
+    <div class="ubicacion">${iconPin} ${ubicacionLabel || p.ciudad || 'Mendoza'}</div>
   </div>
 
-  <div class="header" contenteditable="false">
-    <h1>${p.titulo}</h1>
-    <p>${[p.zona, p.ciudad, 'Mendoza'].filter(Boolean).join(' · ')}</p>
-  </div>
+  ${foto1 ? `
+  <div class="foto-principal-wrap">
+    <img class="foto-principal" src="${foto1}" alt="Foto principal" />
+    ${ubicacionLabel ? `<div class="foto-label">${ubicacionLabel.toUpperCase()}</div>` : ''}
+  </div>` : ''}
 
-  ${specs.length > 0 ? `
-  <div class="section-title">Características</div>
-  <table>${specsHTML}</table>` : ''}
+  ${(foto2 || foto3) ? `
+  <div class="fotos-secundarias">
+    ${foto2 ? `<img src="${foto2}" alt="Foto 2" />` : '<div style="width:50%;background:#f0f0f0;"></div>'}
+    ${foto3 ? `<img src="${foto3}" alt="Foto 3" />` : '<div style="width:50%;background:#f0f0f0;"></div>'}
+  </div>` : ''}
 
-  ${p.descripcion ? `
-  <div class="section-title">Descripción</div>
-  <div class="desc" contenteditable="true">${p.descripcion}</div>` : ''}
+  <div class="body-grid">
+    <div class="col-izq">
+      ${p.descripcion ? `
+      <div class="section-label">Detalle</div>
+      <div class="descripcion">${p.descripcion}</div>` : ''}
+    </div>
 
-  ${fotos.length > 0 ? `
-  <div class="section-title">Fotos</div>
-  <div class="fotos">${fotosHTML}</div>` : ''}
+    <div class="col-der">
+      ${atributos.length > 0 ? `
+      <div class="section-label" style="text-align:center;">Características</div>
+      <div class="atributos-grid">${atributosHTML}</div>` : ''}
 
-  <div class="qr-block">
-    ${qrDataUrl ? `<img src="${qrDataUrl}" alt="QR" />` : ''}
-    <div class="qr-text">
-      <h3>¿Te interesa esta propiedad?</h3>
-      <p>Para más información escaneá el QR</p>
-      <p style="margin-top:12px;">📞 +54 9 2612 09-6351</p>
-      <p>📧 info@lucasfranchi.com.ar</p>
+      <div class="qr-bloque">
+        ${qrDataUrl ? `<img src="${qrDataUrl}" alt="QR código" />` : ''}
+        <p>Escaneá para ver la publicación completa</p>
+        <p style="font-size:11px;font-weight:700;color:#0f2244;">lucasfranchi.com.ar</p>
+      </div>
     </div>
   </div>
 
-  <div class="footer">Lucas Franchi · Corredor Inmobiliario Mat. 1740 · Mendoza, Argentina</div>
+  <div class="footer">
+    <div class="footer-brand">
+      <div>
+        <div class="nombre">LUCAS FRANCHI</div>
+        <div class="mat">Corredor Inmobiliario · Mat. 1740</div>
+      </div>
+    </div>
+    <div class="footer-tel">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#c9a84c" stroke-width="2.2"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07A19.5 19.5 0 013.07 9.81a19.79 19.79 0 01-3.07-8.7A2 2 0 012 0h3a2 2 0 012 1.72c.127.96.361 1.903.7 2.81a2 2 0 01-.45 2.11L6.09 7.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0122 14.92z"/></svg>
+      2612096351
+    </div>
+  </div>
+
+  <div class="bottom-bar"></div>
 </div>
 </body>
 </html>`);
