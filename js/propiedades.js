@@ -90,7 +90,14 @@ async function cargarPropiedades(filtros = {}) {
       .eq('activa', true).order('created_at', { ascending: false });
     if (filtros.operacion) query = query.ilike('tipo_operacion', '%' + filtros.operacion + '%');
     if (filtros.tipo)      query = query.ilike('tipo_propiedad', '%' + filtros.tipo + '%');
-    if (filtros.ciudad)    query = query.ilike('ciudad', '%' + filtros.ciudad + '%');
+    if (filtros.ciudad) {
+      // 'Mendoza' debe incluir propiedades viejas guardadas como 'Capital'
+      if (filtros.ciudad === 'Mendoza') {
+        query = query.or('ciudad.ilike.%Mendoza%,ciudad.ilike.%Capital%');
+      } else {
+        query = query.ilike('ciudad', '%' + filtros.ciudad + '%');
+      }
+    }
     if (filtros.precio)    query = query.lte('precio', Number(filtros.precio));
     const { data, error } = await query;
     if (error) throw error;
