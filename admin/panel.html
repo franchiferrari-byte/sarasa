@@ -413,6 +413,45 @@
     <!-- TAB: LISTA -->
     <div id="tab-lista" class="tab-content">
       <div class="page-title">Mis propiedades</div>
+
+      <!-- FILTROS PANEL -->
+      <div style="display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin-bottom:20px;padding:14px 18px;background:var(--gris-claro);border-radius:var(--radio);border:1px solid var(--gris-borde);">
+        <select id="fl-operacion" onchange="filtrarLista()" style="padding:8px 12px;border:1px solid var(--gris-borde);border-radius:8px;font-size:13px;background:#fff;min-width:160px;">
+          <option value="">Todas las operaciones</option>
+          <option value="Venta">Venta</option>
+          <option value="Alquiler">Alquiler</option>
+        </select>
+        <select id="fl-tipo" onchange="filtrarLista()" style="padding:8px 12px;border:1px solid var(--gris-borde);border-radius:8px;font-size:13px;background:#fff;min-width:170px;">
+          <option value="">Todos los tipos</option>
+          <option value="Casa">Casa</option>
+          <option value="Duplex">Duplex</option>
+          <option value="Departamento">Departamento</option>
+          <option value="Lote / Terreno">Lote / Terreno</option>
+          <option value="Finca">Finca</option>
+          <option value="Bodega">Bodega</option>
+          <option value="Complejo">Complejo</option>
+          <option value="Local / Oficina">Local / Oficina</option>
+          <option value="Galpon">Galpon</option>
+        </select>
+        <select id="fl-ciudad" onchange="filtrarLista()" style="padding:8px 12px;border:1px solid var(--gris-borde);border-radius:8px;font-size:13px;background:#fff;min-width:170px;">
+          <option value="">Todas las localidades</option>
+          <option value="Godoy Cruz">Godoy Cruz</option>
+          <option value="Mendoza">Mendoza</option>
+          <option value="Luján de Cuyo">Luján de Cuyo</option>
+          <option value="Maipú">Maipú</option>
+          <option value="Las Heras">Las Heras</option>
+          <option value="Guaymallén">Guaymallén</option>
+          <option value="Otro">Otro</option>
+        </select>
+        <select id="fl-activa" onchange="filtrarLista()" style="padding:8px 12px;border:1px solid var(--gris-borde);border-radius:8px;font-size:13px;background:#fff;min-width:140px;">
+          <option value="">Todas</option>
+          <option value="true">Activas</option>
+          <option value="false">Inactivas</option>
+        </select>
+        <button onclick="limpiarFiltrosLista()" style="padding:8px 14px;background:transparent;color:var(--gris-texto);border:1px solid var(--gris-borde);border-radius:8px;font-size:13px;cursor:pointer;">✕ Limpiar</button>
+        <span id="fl-count" style="margin-left:auto;font-size:12px;color:var(--gris-texto);font-weight:500;"></span>
+      </div>
+
       <div class="prop-lista" id="prop-lista">
         <div class="loading"><span>Cargando...</span></div>
       </div>
@@ -706,6 +745,8 @@ function limpiar() {
 }
 
 // Lista
+let _todasPropiedades = [];
+
 async function cargarLista() {
   const lista = document.getElementById('prop-lista');
   lista.innerHTML = '<div class="loading"><span>Cargando...</span></div>';
@@ -713,20 +754,72 @@ async function cargarLista() {
     .select('*, propiedades_fotos(url, es_principal)')
     .order('created_at', { ascending: false });
 
-  if (error || !data || data.length === 0) {
-    lista.innerHTML = '<p style="color:var(--gris-texto);padding:20px;">No hay propiedades cargadas.</p>';
+  if (error || !data) {
+    lista.innerHTML = '<p style="color:var(--gris-texto);padding:20px;">Error al cargar propiedades.</p>';
     return;
   }
+  _todasPropiedades = data;
+  renderLista(_todasPropiedades);
+}
 
+function filtrarLista() {
+  const op   = document.getElementById('fl-operacion').value.toLowerCase();
+  const tipo  = document.getElementById('fl-tipo').value.toLowerCase();
+  const ciu   = document.getElementById('fl-ciudad').value.toLowerCase();
+  const act   = document.getElementById('fl-activa').value;
+
+  const resultado = _todasPropiedades.filter(p => {
+    if (op && !(p.tipo_operacion || '').toLowerCase().includes(op)) return false;
+    if (ciu) {
+      const pc = (p.ciudad || '').toLowerCase();
+      const esMendoza = ciu === 'mendoza' && (pc.includes('mendoza') || pc.includes('capital'));
+      if (!esMendoza && !pc.includes(ciu)) return false;
+    }
+    if (act !== '') {
+      if (act === 'true' && !p.activa) return false;
+      if (act === 'false' && p.activa) return false;
+    }
+    if (tipo) {
+      const pt = (p.tipo_propiedad || '').toLowerCase();
+      if (tipo === 'lote / terreno' && !(pt.includes('lote') || pt.includes('terreno') || pt.includes('rural'))) return false;
+      if (tipo === 'local / oficina' && !(pt.includes('local') || pt.includes('oficina'))) return false;
+      if (tipo === 'duplex' && !(pt.includes('duplex') || pt.includes('dúplex'))) return false;
+      if (!['lote / terreno','local / oficina','duplex'].includes(tipo) && !pt.includes(tipo)) return false;
+    }
+    return true;
+  });
+  renderLista(resultado);
+}
+
+function limpiarFiltrosLista() {
+  ['fl-operacion','fl-tipo','fl-ciudad','fl-activa'].forEach(id => { document.getElementById(id).value = ''; });
+  renderLista(_todasPropiedades);
+}
+
+function renderLista(data) {
+  const lista = document.getElementById('prop-lista');
+  const countEl = document.getElementById('fl-count');
+  if (countEl) countEl.textContent = data.length + ' propiedad' + (data.length !== 1 ? 'es' : '');
+
+  if (!data || data.length === 0) {
+    lista.innerHTML = '<p style="color:var(--gris-texto);padding:20px;">No hay propiedades con esos filtros.</p>';
+    return;
+  }
   lista.innerHTML = data.map(p => {
     const foto = p.propiedades_fotos && p.propiedades_fotos.length > 0 ? p.propiedades_fotos[0].url : '';
     const precio = p.precio ? (p.moneda === 'ARS' ? '$ ' : 'USD ') + Number(p.precio).toLocaleString('es-AR') : 'Consultar';
+    const badgeActiva = p.activa
+      ? '<span style="font-size:10px;background:#e8f5e9;color:#2e7d32;border:1px solid #a5d6a7;border-radius:4px;padding:2px 7px;font-weight:600;">ACTIVA</span>'
+      : '<span style="font-size:10px;background:#fff3e0;color:#e65100;border:1px solid #ffcc80;border-radius:4px;padding:2px 7px;font-weight:600;">INACTIVA</span>';
     return `<div class="prop-row">
       ${foto ? `<img class="prop-row-img" src="${foto}" />` : '<div class="prop-row-img"></div>'}
       <div class="prop-row-info">
         <h3>${p.titulo}</h3>
-        <p>${p.ciudad || ''} ${p.zona ? '· ' + p.zona : ''} · ${p.tipo_propiedad || ''}</p>
-        <span class="prop-badge-op">${p.tipo_operacion || 'Venta'}</span>
+        <p>${p.ciudad || ''} ${p.zona ? '· ' + p.zona : ''} · ${normalizarTipo(p.tipo_propiedad) || ''}</p>
+        <div style="display:flex;gap:6px;margin-top:4px;">
+          <span class="prop-badge-op">${p.tipo_operacion || 'Venta'}</span>
+          ${badgeActiva}
+        </div>
       </div>
       <div class="prop-row-precio">${precio}</div>
       <div class="prop-row-actions">
