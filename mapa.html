@@ -54,9 +54,38 @@
       color: var(--gris-texto); font-size: 14px;
       max-width: 1200px; margin: 0 auto;
     }
+    .mapa-filtros {
+      padding: 0 48px 16px;
+      max-width: 1200px;
+      margin: 0 auto;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+    .mapa-filtros label {
+      font-size: 13px;
+      color: var(--gris-texto);
+      font-weight: 600;
+    }
+    .mapa-filtros select {
+      padding: 8px 14px;
+      border: 1px solid var(--gris-borde);
+      border-radius: 8px;
+      font-size: 14px;
+      color: var(--azul);
+      background: #fff;
+      cursor: pointer;
+      font-family: inherit;
+    }
+    .mapa-filtros select:focus { outline: 2px solid var(--dorado); }
+    .mapa-badge {
+      font-size: 12px;
+      color: var(--gris-texto);
+      margin-left: 4px;
+    }
     @media (max-width: 768px) {
-      .mapa-page-header { padding: 24px 20px 16px; }
-      .mapa-page-header h1 { font-size: 24px; }
+      .mapa-filtros { padding: 0 20px 12px; }
     }
   </style>
 </head>
@@ -107,6 +136,23 @@
 <div class="mapa-page-header">
   <h1>Mapa de propiedades</h1>
   <p>Hacé click en un pin para ver los detalles de la propiedad.</p>
+</div>
+
+<div class="mapa-filtros">
+  <label for="filtro-tipo">Filtrar por tipo:</label>
+  <select id="filtro-tipo" onchange="filtrarMapa()">
+    <option value="">Todas las propiedades</option>
+    <option value="Casa">Casa</option>
+    <option value="Departamento">Departamento</option>
+    <option value="Terreno">Terreno</option>
+    <option value="Local">Local</option>
+    <option value="Oficina">Oficina</option>
+    <option value="Bodega">Bodega</option>
+    <option value="Campo">Campo</option>
+    <option value="Cochera">Cochera</option>
+    <option value="Otro">Otro</option>
+  </select>
+  <span class="mapa-badge" id="mapa-contador"></span>
 </div>
 
 <div id="mapa-todas"></div>
@@ -167,21 +213,53 @@
 
   const DB = window.supabase.createClient(CONFIG.SUPABASE_URL, CONFIG.SUPABASE_KEY);
 
+  let mapaObj = null;
+  let todosLosMarkers = []; // [{marker, tipo}]
+
   function formatPrecio(precio, moneda) {
     if (!precio) return 'Consultar';
     const sym = moneda === 'ARS' ? '$' : 'USD';
     return sym + ' ' + Number(precio).toLocaleString('es-AR');
   }
 
+  function normalizarTipo(t) {
+    if (!t) return '';
+    const map = {
+      'casa': 'Casa', 'departamento': 'Departamento', 'depto': 'Departamento',
+      'terreno': 'Terreno', 'local': 'Local', 'oficina': 'Oficina',
+      'bodega': 'Bodega', 'campo': 'Campo', 'cochera': 'Cochera'
+    };
+    return map[t.toLowerCase()] || t;
+  }
+
+  function filtrarMapa() {
+    const filtro = document.getElementById('filtro-tipo').value;
+    let visibles = 0;
+    todosLosMarkers.forEach(({ marker, tipo }) => {
+      const mostrar = !filtro || normalizarTipo(tipo) === filtro;
+      if (mostrar) {
+        if (!mapaObj.hasLayer(marker)) marker.addTo(mapaObj);
+        visibles++;
+      } else {
+        if (mapaObj.hasLayer(marker)) mapaObj.removeLayer(marker);
+      }
+    });
+    const total = todosLosMarkers.length;
+    const badge = document.getElementById('mapa-contador');
+    badge.textContent = filtro
+      ? `${visibles} de ${total} propiedades`
+      : `${total} propiedades`;
+  }
+
   async function cargarMapa() {
-    const mapa = L.map('mapa-todas').setView([-32.8908, -68.8272], 12);
+    mapaObj = L.map('mapa-todas').setView([-32.8908, -68.8272], 12);
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
       attribution: '© <a href="https://openstreetmap.org">OpenStreetMap</a>'
-    }).addTo(mapa);
+    }).addTo(mapaObj);
 
     const { data: props } = await DB
       .from('propiedades')
-      .select('id, titulo, precio, moneda, ciudad, zona, lat, lng, propiedades_fotos(url, es_principal, orden)')
+      .select('id, slug, titulo, precio, moneda, ciudad, zona, lat, lng, tipo_propiedad, propiedades_fotos(url, es_principal, orden)')
       .eq('activa', true)
       .not('lat', 'is', null)
       .not('lng', 'is', null);
@@ -212,13 +290,16 @@
           <a href="${p.slug ? 'propiedad.html?slug=' + p.slug : 'propiedad.html?id=' + p.id}">Ver propiedad →</a>
         </div>`;
 
-      const marker = L.marker([p.lat, p.lng]).addTo(mapa);
+      const marker = L.marker([p.lat, p.lng]).addTo(mapaObj);
       marker.bindPopup(popup, { maxWidth: 220 });
       bounds.push([p.lat, p.lng]);
+      todosLosMarkers.push({ marker, tipo: p.tipo_propiedad || '' });
     });
 
-    if (bounds.length > 1) mapa.fitBounds(bounds, { padding: [40, 40] });
-    else if (bounds.length === 1) mapa.setView(bounds[0], 15);
+    document.getElementById('mapa-contador').textContent = `${props.length} propiedades`;
+
+    if (bounds.length > 1) mapaObj.fitBounds(bounds, { padding: [40, 40] });
+    else if (bounds.length === 1) mapaObj.setView(bounds[0], 15);
   }
 
   cargarMapa();
