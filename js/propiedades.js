@@ -201,6 +201,14 @@ async function cargarFicha(identificador) {
   }
   if (typeof actualizarSEO === 'function') actualizarSEO(p, fotos);
   if (typeof mostrarMapaPropiedad === 'function') mostrarMapaPropiedad(p.lat, p.lng, p.titulo);
+
+  // Tour 360
+  const tourWrap = document.getElementById('tour360-wrap');
+  if (tourWrap && p.tour_360) {
+    document.getElementById('tour360-iframe').src = p.tour_360;
+    tourWrap.style.display = 'block';
+  }
+
   return fotos;
 }
 
