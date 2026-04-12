@@ -379,6 +379,10 @@
               <button class="link-clear" onclick="limpiarLink()" title="Limpiar">×</button>
             </div>
           </div>
+          <div class="campo" style="margin-top:12px;">
+            <label>Tour 360° <span style="font-weight:400;color:var(--gris-texto);">(Kuula, Matterport, etc. — pegá la URL del tour)</span></label>
+            <input type="url" id="tour360" placeholder="https://kuula.co/share/collection/..." />
+          </div>
           <div class="qr-preview" id="qr-preview">
             <canvas id="qr-canvas"></canvas>
             <div class="qr-preview-info">
@@ -530,6 +534,7 @@
       <div id="mapa-edit" style="height:220px;border-radius:10px;border:1px solid var(--gris-borde);margin-bottom:16px;"></div>
       <div class="campo" style="margin-bottom:12px;"><label>Descripción</label><textarea id="edit-descripcion" style="min-height:80px;"></textarea></div>
       <div class="campo" style="margin-bottom:12px;"><label>Link externo (MendozaProp, Zonaprop, etc.)</label><input type="url" id="edit-link" /></div>
+      <div class="campo" style="margin-bottom:12px;"><label>Tour 360° <span style="font-weight:400;color:var(--gris-texto);">(Kuula, Matterport, etc.)</span></label><input type="url" id="edit-tour360" placeholder="https://kuula.co/share/collection/..." /></div>
       <div style="display:flex;gap:20px;margin-bottom:4px;">
         <label style="font-size:13px;display:flex;align-items:center;gap:8px;cursor:pointer;color:var(--gris-texto);font-weight:500;"><input type="checkbox" id="edit-destacada" /> Destacada</label>
         <label style="font-size:13px;display:flex;align-items:center;gap:8px;cursor:pointer;color:var(--gris-texto);font-weight:500;"><input type="checkbox" id="edit-credito" /> Apta crédito</label>
@@ -703,6 +708,7 @@ async function publicar() {
       destacada: document.getElementById('destacada').checked,
       apta_credito: document.getElementById('credito').checked,
       link_externo: document.getElementById('link-externo').value.trim() || null,
+      tour_360: document.getElementById('tour360').value.trim() || null,
       lat: parseFloat(document.getElementById('lat').value) || null,
       lng: parseFloat(document.getElementById('lng').value) || null,
       activa: true,
@@ -732,7 +738,7 @@ async function publicar() {
 }
 
 function limpiar() {
-  ['titulo','precio','descripcion','zona','direccion','lat','lng','dorm','banos','cocheras','sup-cub','sup-tot','antig','link-externo'].forEach(id => {
+  ['titulo','precio','descripcion','zona','direccion','lat','lng','dorm','banos','cocheras','sup-cub','sup-tot','antig','link-externo','tour360'].forEach(id => {
     const el = document.getElementById(id); if (el) el.value = '';
   });
   document.getElementById('destacada').checked = false;
@@ -856,6 +862,7 @@ async function abrirEdicion(id) {
   setTimeout(() => iniciarMapaEdit(p.lat, p.lng), 300);
   document.getElementById('edit-descripcion').value = p.descripcion || '';
   document.getElementById('edit-link').value = p.link_externo || '';
+  document.getElementById('edit-tour360').value = p.tour_360 || '';
   document.getElementById('edit-destacada').checked = p.destacada || false;
   document.getElementById('edit-credito').checked = p.apta_credito || false;
   document.getElementById('edit-activa').checked = p.activa !== false;
@@ -977,6 +984,7 @@ async function guardarEdicion() {
     direccion: document.getElementById('edit-direccion').value || null,
     descripcion: document.getElementById('edit-descripcion').value || null,
     link_externo: document.getElementById('edit-link').value || null,
+    tour_360: document.getElementById('edit-tour360').value || null,
     lat: parseFloat(document.getElementById('edit-lat').value) || null,
     lng: parseFloat(document.getElementById('edit-lng').value) || null,
     destacada: document.getElementById('edit-destacada').checked,
