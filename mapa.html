@@ -143,14 +143,14 @@
   <select id="filtro-tipo" onchange="filtrarMapa()">
     <option value="">Todas las propiedades</option>
     <option value="Casa">Casa</option>
+    <option value="Duplex">Duplex</option>
     <option value="Departamento">Departamento</option>
-    <option value="Terreno">Terreno</option>
-    <option value="Local">Local</option>
-    <option value="Oficina">Oficina</option>
+    <option value="Lote / Terreno">Lote / Terreno</option>
+    <option value="Finca">Finca</option>
     <option value="Bodega">Bodega</option>
-    <option value="Campo">Campo</option>
-    <option value="Cochera">Cochera</option>
-    <option value="Otro">Otro</option>
+    <option value="Complejo">Complejo</option>
+    <option value="Local / Oficina">Local / Oficina</option>
+    <option value="Galpon">Galpon</option>
   </select>
   <span class="mapa-badge" id="mapa-contador"></span>
 </div>
@@ -225,9 +225,22 @@
   function normalizarTipo(t) {
     if (!t) return '';
     const map = {
-      'casa': 'Casa', 'departamento': 'Departamento', 'depto': 'Departamento',
-      'terreno': 'Terreno', 'local': 'Local', 'oficina': 'Oficina',
-      'bodega': 'Bodega', 'campo': 'Campo', 'cochera': 'Cochera'
+      'terreno': 'Lote / Terreno',
+      'lote': 'Lote / Terreno',
+      'lote / terreno': 'Lote / Terreno',
+      'rural': 'Lote / Terreno',
+      'local': 'Local / Oficina',
+      'oficina': 'Local / Oficina',
+      'local / oficina': 'Local / Oficina',
+      'dúplex': 'Duplex',
+      'duplex': 'Duplex',
+      'galpón': 'Galpon',
+      'galpon': 'Galpon',
+      'casa': 'Casa',
+      'departamento': 'Departamento',
+      'finca': 'Finca',
+      'bodega': 'Bodega',
+      'complejo': 'Complejo',
     };
     return map[t.toLowerCase()] || t;
   }
