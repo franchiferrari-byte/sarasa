@@ -14,7 +14,6 @@ function badgeClass(op) {
   if (!op) return '';
   const o = op.toLowerCase();
   if (o === 'alquiler') return 'alquiler';
-  if (o === 'pozo' || o === 'en pozo') return 'pozo';
   return '';
 }
 
