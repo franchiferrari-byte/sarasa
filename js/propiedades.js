@@ -202,6 +202,30 @@ async function cargarFicha(identificador) {
   if (typeof actualizarSEO === 'function') actualizarSEO(p, fotos);
   if (typeof mostrarMapaPropiedad === 'function') mostrarMapaPropiedad(p.lat, p.lng, p.titulo);
 
+  // ── Tracking: GA4 event + visita en Supabase ──────────────────────────────
+  // GA4: evento personalizado con nombre y slug de la propiedad
+  if (typeof gtag === 'function') {
+    gtag('event', 'ver_propiedad', {
+      propiedad_titulo: p.titulo,
+      propiedad_slug:   p.slug || p.id,
+      propiedad_ciudad: p.ciudad || '',
+      propiedad_tipo:   p.tipo_operacion || '',
+    });
+  }
+  // Supabase: registrar visita (sin bloquear render, sin mostrar errores al usuario)
+  try {
+    await DB.from('visitas').insert({
+      propiedad_id:    p.id,
+      propiedad_titulo: p.titulo,
+      propiedad_slug:  p.slug || null,
+      ciudad:          p.ciudad || null,
+      tipo_operacion:  p.tipo_operacion || null,
+      referrer:        document.referrer || null,
+      user_agent:      navigator.userAgent || null,
+    });
+  } catch (_) { /* silencioso */ }
+  // ─────────────────────────────────────────────────────────────────────────
+
   // Tour 360
   const tourWrap = document.getElementById('tour360-wrap');
   if (tourWrap && p.tour_360) {
