@@ -46,7 +46,9 @@
     .menu-item.active { background: var(--azul-suave); color: var(--azul); font-weight: 600; }
     .menu-item .ico { width: 18px; text-align: center; }
 
-    .main { flex: 1; padding: 32px; overflow-y: auto; }
+    .main { flex: 1; padding: 32px; overflow-y: auto; position: relative; }
+    #tab-estadisticas { position: absolute; top: 0; left: 0; right: 0; padding: 32px; box-sizing: border-box; }
+    #tab-estadisticas.active { display: block; }
     .page-title { color: var(--azul); font-size: 24px; font-family: Arial, sans-serif; margin-bottom: 24px; }
 
     .stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 32px; }
@@ -765,8 +767,10 @@ function mostrarTab(tab, el) {
   if (tab === 'estadisticas') cargarEstadisticas();
   // Ocultar barra de resumen cuando se muestra el dashboard de estadísticas
   document.querySelector('.stats').style.display = tab === 'estadisticas' ? 'none' : '';
-  // Scroll al tope al cambiar de pestaña
-  window.scrollTo({ top: 0, behavior: 'smooth' });
+  // El #msg tiene margin-bottom que empuja aunque esté oculto — lo anulamos en estadísticas
+  document.getElementById('msg').style.marginBottom = tab === 'estadisticas' ? '0' : '';
+  // Scroll al tope (el scroll es interno al .main)
+  document.querySelector('.main').scrollTop = 0;
 }
 
 // Stats
