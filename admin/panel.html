@@ -763,6 +763,10 @@ function mostrarTab(tab, el) {
   if (el) el.classList.add('active');
   if (tab === 'lista') cargarLista();
   if (tab === 'estadisticas') cargarEstadisticas();
+  // Ocultar barra de resumen cuando se muestra el dashboard de estadísticas
+  document.querySelector('.stats').style.display = tab === 'estadisticas' ? 'none' : '';
+  // Scroll al tope al cambiar de pestaña
+  window.scrollTo({ top: 0, behavior: 'smooth' });
 }
 
 // Stats
