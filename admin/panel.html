@@ -459,6 +459,7 @@
           <option value="false">Inactivas</option>
         </select>
         <button onclick="limpiarFiltrosLista()" style="padding:8px 14px;background:transparent;color:var(--gris-texto);border:1px solid var(--gris-borde);border-radius:8px;font-size:13px;cursor:pointer;">✕ Limpiar</button>
+        <button id="btn-gen-slugs" onclick="generarSlugsFaltantes()" title="Genera URLs amigables para las propiedades que aún usan ID numérico" style="padding:8px 14px;background:var(--azul);color:#fff;border:none;border-radius:8px;font-size:13px;cursor:pointer;font-weight:600;">🔗 Generar URLs amigables</button>
         <span id="fl-count" style="margin-left:auto;font-size:12px;color:var(--gris-texto);font-weight:500;"></span>
       </div>
 
@@ -1272,6 +1273,47 @@ async function eliminar(id) {
     cargarStats();
   } catch(err) {
     mostrarMsg('Error al eliminar: ' + err.message, 'err');
+  }
+}
+
+// ── GENERAR SLUGS PARA PROPIEDADES SIN SLUG ───────────────────────────────────
+async function generarSlugsFaltantes() {
+  const btn = document.getElementById('btn-gen-slugs');
+  btn.disabled = true; btn.textContent = '⏳ Procesando...';
+
+  try {
+    // Traer todas las propiedades sin slug
+    const { data, error } = await DB.from('propiedades')
+      .select('id, titulo, tipo_operacion, tipo_propiedad, ciudad, zona')
+      .is('slug', null);
+
+    if (error) throw error;
+    if (!data || data.length === 0) {
+      mostrarMsg('✅ Todas las propiedades ya tienen URL amigable.', 'ok');
+      btn.disabled = false; btn.textContent = '🔗 Generar URLs amigables';
+      return;
+    }
+
+    let actualizadas = 0;
+    for (const p of data) {
+      const partes = [p.tipo_operacion, p.tipo_propiedad, p.ciudad, p.zona].filter(Boolean);
+      const base   = generarSlugLocal(partes.join(' '));
+      const sufijo = Math.random().toString(36).substring(2, 6);
+      const slug   = base + '-' + sufijo;
+
+      const { error: errUpd } = await DB.from('propiedades')
+        .update({ slug })
+        .eq('id', p.id);
+
+      if (!errUpd) actualizadas++;
+    }
+
+    mostrarMsg(`✅ ${actualizadas} de ${data.length} propiedades actualizadas con URL amigable.`, 'ok');
+    cargarLista();
+  } catch(err) {
+    mostrarMsg('Error: ' + err.message, 'err');
+  } finally {
+    btn.disabled = false; btn.textContent = '🔗 Generar URLs amigables';
   }
 }
 
