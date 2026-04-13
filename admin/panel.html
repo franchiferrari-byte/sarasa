@@ -287,8 +287,6 @@
               <select id="operacion">
                 <option value="Venta">Venta</option>
                 <option value="Alquiler">Alquiler</option>
-                <option value="En pozo">En pozo</option>
-                <option value="Inversión">Inversión</option>
               </select>
             </div>
           </div>
@@ -485,8 +483,6 @@
           <select id="edit-operacion">
             <option value="Venta">Venta</option>
             <option value="Alquiler">Alquiler</option>
-            <option value="En pozo">En pozo</option>
-            <option value="Inversión">Inversión</option>
           </select>
         </div>
       </div>
@@ -847,10 +843,20 @@ async function publicar() {
   setProgreso('Guardando propiedad...');
 
   try {
+    // Generar slug SEO con palabras clave: operacion-tipo-ciudad-zona-sufijo
+    const _op   = document.getElementById('operacion').value;
+    const _tipo = document.getElementById('tipo').value;
+    const _ciu  = document.getElementById('ciudad').value;
+    const _zona = document.getElementById('zona').value;
+    const _sufijo = Math.random().toString(36).substring(2, 6);
+    const _slugPartes = [_op, _tipo, _ciu, _zona].filter(Boolean);
+    const slugNuevo = generarSlugLocal(_slugPartes.join(' ')) + '-' + _sufijo;
+
     const { data: prop, error } = await DB.from('propiedades').insert({
       titulo,
-      tipo_operacion: document.getElementById('operacion').value,
-      tipo_propiedad: document.getElementById('tipo').value,
+      slug: slugNuevo,
+      tipo_operacion: _op,
+      tipo_propiedad: _tipo,
       precio: document.getElementById('precio').value || null,
       moneda: document.getElementById('moneda').value,
       descripcion: document.getElementById('descripcion').value || null,
