@@ -245,6 +245,9 @@
       <div class="menu-item" onclick="mostrarTab('lista', this)">
         <span class="ico">📋</span> Mis propiedades
       </div>
+      <div class="menu-item" onclick="mostrarTab('estadisticas', this)">
+        <span class="ico">📊</span> Estadísticas
+      </div>
     </div>
     <div class="sidebar-section" style="margin-top:16px;">
       <div class="sidebar-label">Accesos rápidos</div>
@@ -576,6 +579,155 @@
   </div>
 </div>
 
+<!-- TAB: ESTADÍSTICAS -->
+<div id="tab-estadisticas" class="tab-content">
+  <div class="page-title">📊 Estadísticas del sitio</div>
+
+  <!-- KPIs -->
+  <div id="est-kpis" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:16px;margin-bottom:28px;">
+    <div class="est-kpi-card"><div class="est-kpi-num" id="kpi-total-visitas">—</div><div class="est-kpi-label">Visitas totales</div></div>
+    <div class="est-kpi-card"><div class="est-kpi-num" id="kpi-visitas-hoy">—</div><div class="est-kpi-label">Visitas hoy</div></div>
+    <div class="est-kpi-card"><div class="est-kpi-num" id="kpi-visitas-semana">—</div><div class="est-kpi-label">Últimos 7 días</div></div>
+    <div class="est-kpi-card"><div class="est-kpi-num" id="kpi-props-unicas">—</div><div class="est-kpi-label">Propiedades visitadas</div></div>
+  </div>
+
+  <!-- Top propiedades -->
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-bottom:24px;">
+    <div class="est-panel">
+      <div class="est-panel-title">🏆 Propiedades más vistas</div>
+      <div id="est-top-props"><div class="est-loading">Cargando...</div></div>
+    </div>
+    <div class="est-panel">
+      <div class="est-panel-title">📅 Visitas por día (últimos 14 días)</div>
+      <div id="est-por-dia"><div class="est-loading">Cargando...</div></div>
+    </div>
+  </div>
+
+  <!-- Por ciudad / tipo operación -->
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-bottom:24px;">
+    <div class="est-panel">
+      <div class="est-panel-title">🗺️ Visitas por ciudad</div>
+      <div id="est-por-ciudad"><div class="est-loading">Cargando...</div></div>
+    </div>
+    <div class="est-panel">
+      <div class="est-panel-title">🔖 Visitas por tipo de operación</div>
+      <div id="est-por-tipo"><div class="est-loading">Cargando...</div></div>
+    </div>
+  </div>
+
+  <!-- Últimas visitas -->
+  <div class="est-panel" style="margin-bottom:24px;">
+    <div class="est-panel-title">🕐 Últimas visitas registradas</div>
+    <div id="est-ultimas"><div class="est-loading">Cargando...</div></div>
+  </div>
+
+  <div style="text-align:right;">
+    <button onclick="cargarEstadisticas()" style="padding:8px 18px;background:var(--azul);color:#fff;border:none;border-radius:8px;cursor:pointer;font-size:13px;">🔄 Actualizar</button>
+  </div>
+</div>
+<!-- /tab-estadisticas -->
+
+<style>
+.est-kpi-card {
+  background: #fff;
+  border: 1px solid var(--gris-borde);
+  border-radius: var(--radio);
+  padding: 20px 16px;
+  text-align: center;
+  box-shadow: 0 1px 4px rgba(0,0,0,.04);
+}
+.est-kpi-num {
+  font-size: 2rem;
+  font-weight: 700;
+  color: var(--azul);
+  line-height: 1.1;
+}
+.est-kpi-label {
+  font-size: 12px;
+  color: var(--gris-texto);
+  margin-top: 4px;
+  text-transform: uppercase;
+  letter-spacing: .04em;
+}
+.est-panel {
+  background: #fff;
+  border: 1px solid var(--gris-borde);
+  border-radius: var(--radio);
+  padding: 18px 20px;
+  box-shadow: 0 1px 4px rgba(0,0,0,.04);
+}
+.est-panel-title {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--azul);
+  margin-bottom: 14px;
+  text-transform: uppercase;
+  letter-spacing: .04em;
+}
+.est-loading { color: var(--gris-texto); font-size: 13px; padding: 12px 0; }
+.est-bar-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 10px;
+  font-size: 13px;
+}
+.est-bar-label {
+  flex: 0 0 160px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  color: #333;
+}
+.est-bar-track {
+  flex: 1;
+  background: var(--gris-claro);
+  border-radius: 6px;
+  height: 10px;
+  overflow: hidden;
+}
+.est-bar-fill {
+  height: 100%;
+  background: var(--azul);
+  border-radius: 6px;
+  transition: width .4s;
+}
+.est-bar-count {
+  flex: 0 0 32px;
+  text-align: right;
+  font-weight: 700;
+  color: var(--azul);
+  font-size: 13px;
+}
+.est-dia-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 7px;
+  font-size: 12px;
+}
+.est-dia-label { flex: 0 0 72px; color: var(--gris-texto); }
+.est-ultimas-tabla {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 12px;
+}
+.est-ultimas-tabla th {
+  text-align: left;
+  padding: 6px 10px;
+  background: var(--gris-claro);
+  color: var(--gris-texto);
+  font-weight: 600;
+  border-bottom: 1px solid var(--gris-borde);
+}
+.est-ultimas-tabla td {
+  padding: 7px 10px;
+  border-bottom: 1px solid #f0f0f0;
+  color: #333;
+}
+.est-ultimas-tabla tr:last-child td { border-bottom: none; }
+</style>
+
 <script src="../js/config.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
@@ -610,6 +762,7 @@ function mostrarTab(tab, el) {
   document.getElementById('tab-' + tab).classList.add('active');
   if (el) el.classList.add('active');
   if (tab === 'lista') cargarLista();
+  if (tab === 'estadisticas') cargarEstadisticas();
 }
 
 // Stats
@@ -1112,6 +1265,149 @@ async function eliminar(id) {
 }
 
 document.addEventListener('DOMContentLoaded', cargarStats);
+
+// ── ESTADÍSTICAS ──────────────────────────────────────────────────────────────
+async function cargarEstadisticas() {
+  // Helpers
+  const set = (id, v) => { const el = document.getElementById(id); if (el) el.innerHTML = v; };
+  const fmt = n => Number(n).toLocaleString('es-AR');
+
+  // Fechas
+  const ahora    = new Date();
+  const hoyISO   = ahora.toISOString().slice(0, 10);
+  const hace7    = new Date(ahora - 7  * 86400000).toISOString();
+  const hace14   = new Date(ahora - 14 * 86400000).toISOString();
+
+  try {
+    // 1. Total visitas
+    const { count: total } = await DB.from('visitas').select('*', { count: 'exact', head: true });
+    set('kpi-total-visitas', fmt(total || 0));
+
+    // 2. Visitas hoy
+    const { count: hoy } = await DB.from('visitas')
+      .select('*', { count: 'exact', head: true })
+      .gte('created_at', hoyISO + 'T00:00:00');
+    set('kpi-visitas-hoy', fmt(hoy || 0));
+
+    // 3. Visitas últimos 7 días
+    const { count: semana } = await DB.from('visitas')
+      .select('*', { count: 'exact', head: true })
+      .gte('created_at', hace7);
+    set('kpi-visitas-semana', fmt(semana || 0));
+
+    // 4. Propiedades únicas visitadas
+    const { data: rawAll } = await DB.from('visitas')
+      .select('propiedad_id, propiedad_titulo, propiedad_slug, ciudad, tipo_operacion, created_at')
+      .order('created_at', { ascending: false });
+
+    const todas = rawAll || [];
+
+    // Props únicas
+    const uniqProps = new Set(todas.map(v => v.propiedad_id));
+    set('kpi-props-unicas', fmt(uniqProps.size));
+
+    // 5. Top propiedades
+    const contProp = {};
+    const tituloProp = {};
+    todas.forEach(v => {
+      contProp[v.propiedad_id] = (contProp[v.propiedad_id] || 0) + 1;
+      tituloProp[v.propiedad_id] = v.propiedad_titulo || v.propiedad_slug || v.propiedad_id;
+    });
+    const topProps = Object.entries(contProp)
+      .sort((a, b) => b[1] - a[1]).slice(0, 8);
+    const maxProp = topProps[0]?.[1] || 1;
+    set('est-top-props', topProps.length === 0
+      ? '<p class="est-loading">Sin datos aún.</p>'
+      : topProps.map(([id, n]) => `
+        <div class="est-bar-row">
+          <div class="est-bar-label" title="${tituloProp[id]}">${tituloProp[id]}</div>
+          <div class="est-bar-track"><div class="est-bar-fill" style="width:${Math.round(n/maxProp*100)}%"></div></div>
+          <div class="est-bar-count">${n}</div>
+        </div>`).join(''));
+
+    // 6. Visitas por día (últimos 14 días)
+    const ultimas14 = todas.filter(v => v.created_at >= hace14);
+    const porDia = {};
+    ultimas14.forEach(v => {
+      const dia = v.created_at.slice(0, 10);
+      porDia[dia] = (porDia[dia] || 0) + 1;
+    });
+    // Generar array de 14 días hacia atrás
+    const dias14 = Array.from({ length: 14 }, (_, i) => {
+      const d = new Date(ahora - (13 - i) * 86400000);
+      return d.toISOString().slice(0, 10);
+    });
+    const maxDia = Math.max(...dias14.map(d => porDia[d] || 0), 1);
+    set('est-por-dia', dias14.map(d => {
+      const n = porDia[d] || 0;
+      const label = new Date(d + 'T12:00:00').toLocaleDateString('es-AR', { day: '2-digit', month: '2-digit' });
+      return `<div class="est-dia-row">
+        <div class="est-dia-label">${label}</div>
+        <div class="est-bar-track" style="flex:1"><div class="est-bar-fill" style="width:${Math.round(n/maxDia*100)}%;background:var(--dorado)"></div></div>
+        <div class="est-bar-count">${n}</div>
+      </div>`;
+    }).join(''));
+
+    // 7. Por ciudad
+    const porCiudad = {};
+    todas.forEach(v => {
+      const c = v.ciudad || 'Sin datos';
+      porCiudad[c] = (porCiudad[c] || 0) + 1;
+    });
+    const topCiudad = Object.entries(porCiudad).sort((a,b) => b[1]-a[1]).slice(0,6);
+    const maxCiudad = topCiudad[0]?.[1] || 1;
+    set('est-por-ciudad', topCiudad.length === 0
+      ? '<p class="est-loading">Sin datos aún.</p>'
+      : topCiudad.map(([c, n]) => `
+        <div class="est-bar-row">
+          <div class="est-bar-label">${c}</div>
+          <div class="est-bar-track"><div class="est-bar-fill" style="width:${Math.round(n/maxCiudad*100)}%;background:#2e7d32"></div></div>
+          <div class="est-bar-count">${n}</div>
+        </div>`).join(''));
+
+    // 8. Por tipo operación
+    const porTipo = {};
+    todas.forEach(v => {
+      const t = v.tipo_operacion || 'Sin datos';
+      porTipo[t] = (porTipo[t] || 0) + 1;
+    });
+    const topTipo = Object.entries(porTipo).sort((a,b) => b[1]-a[1]);
+    const maxTipo = topTipo[0]?.[1] || 1;
+    set('est-por-tipo', topTipo.length === 0
+      ? '<p class="est-loading">Sin datos aún.</p>'
+      : topTipo.map(([t, n]) => `
+        <div class="est-bar-row">
+          <div class="est-bar-label">${t}</div>
+          <div class="est-bar-track"><div class="est-bar-fill" style="width:${Math.round(n/maxTipo*100)}%;background:#6a1b9a"></div></div>
+          <div class="est-bar-count">${n}</div>
+        </div>`).join(''));
+
+    // 9. Últimas 15 visitas
+    const ult = todas.slice(0, 15);
+    set('est-ultimas', ult.length === 0
+      ? '<p class="est-loading">Sin datos aún.</p>'
+      : `<table class="est-ultimas-tabla">
+          <thead><tr><th>Propiedad</th><th>Ciudad</th><th>Tipo</th><th>Fecha y hora</th></tr></thead>
+          <tbody>${ult.map(v => {
+            const fecha = new Date(v.created_at).toLocaleString('es-AR', {
+              day: '2-digit', month: '2-digit', year: '2-digit',
+              hour: '2-digit', minute: '2-digit'
+            });
+            return `<tr>
+              <td>${v.propiedad_titulo || v.propiedad_slug || '—'}</td>
+              <td>${v.ciudad || '—'}</td>
+              <td>${v.tipo_operacion || '—'}</td>
+              <td>${fecha}</td>
+            </tr>`;
+          }).join('')}</tbody>
+        </table>`);
+
+  } catch(e) {
+    ['est-top-props','est-por-dia','est-por-ciudad','est-por-tipo','est-ultimas'].forEach(id =>
+      set(id, `<p style="color:#c62828;font-size:13px;">Error: ${e.message}</p>`));
+  }
+}
+// ─────────────────────────────────────────────────────────────────────────────
 </script>
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <script>
