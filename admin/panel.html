@@ -47,15 +47,13 @@
     .menu-item .ico { width: 18px; text-align: center; }
 
     .main { flex: 1; padding: 32px; overflow-y: auto; }
+    #msg:not([style*="block"]) { margin: 0; padding: 0; }
     #tab-estadisticas { font-size: 13px; }
     #tab-estadisticas .est-kpi-num { font-size: 1.5rem; }
     #tab-estadisticas .est-kpi-card { padding: 14px 10px; }
     #tab-estadisticas .est-bar-label { flex: 0 0 120px; font-size: 12px; }
     #tab-estadisticas .est-panel { padding: 14px 16px; }
     #tab-estadisticas .est-panel-title { font-size: 11px; margin-bottom: 10px; }
-    .main.modo-estadisticas { padding-top: 0; }
-    .main.modo-estadisticas #msg { display: none !important; }
-    .main.modo-estadisticas .stats { display: none !important; }
     .page-title { color: var(--azul); font-size: 24px; font-family: Arial, sans-serif; margin-bottom: 24px; }
 
     .stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 32px; }
@@ -269,17 +267,15 @@
   <!-- MAIN -->
   <div class="main">
     <div id="msg" class="msg"></div>
-
-    <!-- STATS -->
-    <div class="stats">
-      <div class="stat"><p>Activas</p><strong id="st-activas">—</strong></div>
-      <div class="stat"><p>Total</p><strong id="st-total">—</strong></div>
-      <div class="stat"><p>En venta</p><strong id="st-venta">—</strong></div>
-      <div class="stat"><p>En alquiler</p><strong id="st-alquiler">—</strong></div>
-    </div>
-
     <!-- TAB: NUEVA PROPIEDAD -->
     <div id="tab-nueva" class="tab-content active">
+      <!-- STATS -->
+      <div class="stats">
+        <div class="stat"><p>Activas</p><strong id="st-activas">—</strong></div>
+        <div class="stat"><p>Total</p><strong id="st-total">—</strong></div>
+        <div class="stat"><p>En venta</p><strong id="st-venta">—</strong></div>
+        <div class="stat"><p>En alquiler</p><strong id="st-alquiler">—</strong></div>
+      </div>
       <div class="page-title">Cargar nueva propiedad</div>
       <div class="form-card">
 
@@ -772,14 +768,7 @@ function mostrarTab(tab, el) {
   if (el) el.classList.add('active');
   if (tab === 'lista') cargarLista();
   if (tab === 'estadisticas') cargarEstadisticas();
-  // Modo estadísticas: oculta msg y stats bar vía clase CSS, quita padding top
-  const main = document.querySelector('.main');
-  if (tab === 'estadisticas') {
-    main.classList.add('modo-estadisticas');
-  } else {
-    main.classList.remove('modo-estadisticas');
-  }
-  main.scrollTop = 0;
+  document.querySelector('.main').scrollTop = 0;
 }
 
 // Stats
