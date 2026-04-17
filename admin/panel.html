@@ -977,7 +977,8 @@ function renderLista(data) {
     return;
   }
   lista.innerHTML = data.map(p => {
-    const foto = p.propiedades_fotos && p.propiedades_fotos.length > 0 ? p.propiedades_fotos[0].url : '';
+    const fotoArr = p.propiedades_fotos || [];
+    const foto = fotoArr.length > 0 ? (fotoArr.find(f => f.es_principal) || fotoArr[0]).url : '';
     const precio = p.precio ? (p.moneda === 'ARS' ? '$ ' : 'USD ') + Number(p.precio).toLocaleString('es-AR') : 'Consultar';
     const badgeActiva = p.activa
       ? '<span style="font-size:10px;background:#e8f5e9;color:#2e7d32;border:1px solid #a5d6a7;border-radius:4px;padding:2px 7px;font-weight:600;">ACTIVA</span>'
