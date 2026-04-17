@@ -55,29 +55,17 @@
   </div>
 </nav>
 
-<!-- HERO -->
-<section class="hero">
-  <div class="hero-content">
-    <div class="hero-tag">Corredor Inmobiliario · Mat. 1740</div>
-    <h1>Propiedades<br>disponibles en<br><em>el Gran Mendoza</em></h1>
-    <p class="hero-sub">Casas, departamentos, terrenos y más. Encontrá tu próxima propiedad con Lucas Franchi.</p>
-    <div class="hero-btns">
-      <a href="index.html#contacto" class="btn-hero-primary">
-        Contactar →
-      </a>
-      <a href="#" id="btn-vender-hero" class="btn-hero-outline" target="_blank" rel="noopener">
-        Quiero vender
-      </a>
-    </div>
-  </div>
-  <div class="hero-img">
-    <img src="https://images.unsplash.com/photo-1580587771525-78b9dba3b914?w=900&q=80" alt="Propiedades en Mendoza" />
-  </div>
-</section>
+
+<!-- HEADER -->
+<div class="seccion" style="padding-top:40px;padding-bottom:10px;">
+  <h1 style="color:var(--azul);font-family:Arial,sans-serif;">
+    Propiedades disponibles
+  </h1>
+  <p id="resultado-count" style="display:none;"></p>
+</div>
 
 <!-- FILTROS -->
-<div class="seccion" style="padding-top:24px;padding-bottom:24px;">
-  <p id="resultado-count" style="display:none;margin-bottom:12px;"></p>
+<div class="seccion" style="padding-top:0;padding-bottom:24px;">
   <div style="display:flex;flex-wrap:wrap;gap:12px;align-items:center;">
     <select id="f-operacion" style="padding:8px 14px;border:1px solid var(--gris-borde);border-radius:8px;font-size:14px;">
       <option value="">Operación</option>
@@ -165,10 +153,8 @@
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="js/propiedades.js"></script>
 <script>
-  const wspVender = `https://wa.me/${CONFIG.WHATSAPP}?text=${encodeURIComponent('Hola Lucas, quiero vender mi propiedad')}`;
   document.getElementById('nav-wsp').href = `https://wa.me/${CONFIG.WHATSAPP}`;
   document.getElementById('wsp-flotante').href = `https://wa.me/${CONFIG.WHATSAPP}`;
-  document.getElementById('btn-vender-hero').href = wspVender;
   document.getElementById('footer-wsp').href = `https://wa.me/${CONFIG.WHATSAPP}`;
   document.getElementById('footer-wsp-ico').href = `https://wa.me/${CONFIG.WHATSAPP}`;
 
