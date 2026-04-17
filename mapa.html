@@ -129,25 +129,15 @@
   </div>
 </nav>
 
-<!-- HERO -->
-<section class="hero">
-  <div class="hero-content">
-    <div class="hero-tag">Corredor Inmobiliario · Mat. 1740</div>
-    <h1>Mapa de<br>propiedades en<br><em>el Gran Mendoza</em></h1>
-    <p class="hero-sub">Explorá la ubicación de todas las propiedades disponibles. Hacé click en un pin para ver los detalles.</p>
-    <div class="hero-btns">
-      <a href="propiedades.html" class="btn-hero-primary">
-        Ver listado →
-      </a>
-      <a href="#" id="btn-vender-hero" class="btn-hero-outline" target="_blank" rel="noopener">
-        Quiero vender
-      </a>
-    </div>
-  </div>
-  <div class="hero-img">
-    <img src="https://images.unsplash.com/photo-1580587771525-78b9dba3b914?w=900&q=80" alt="Propiedades en Mendoza" />
-  </div>
-</section>
+<!-- BREADCRUMB -->
+<div class="breadcrumb">
+  <a href="index.html">Inicio</a> · <span>Mapa de propiedades</span>
+</div>
+
+<div class="mapa-page-header">
+  <h1>Mapa de propiedades</h1>
+  <p>Hacé click en un pin para ver los detalles de la propiedad.</p>
+</div>
 
 <div class="mapa-filtros">
   <label for="filtro-tipo">Filtrar por tipo:</label>
@@ -218,10 +208,8 @@
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
 <script>
   const wspUrl = `https://wa.me/${CONFIG.WHATSAPP}`;
-  const wspVender = `https://wa.me/${CONFIG.WHATSAPP}?text=${encodeURIComponent('Hola Lucas, quiero vender mi propiedad')}`;
   document.getElementById('nav-wsp').href = wspUrl;
   document.getElementById('wsp-flotante').href = wspUrl;
-  document.getElementById('btn-vender-hero').href = wspVender;
   document.getElementById('footer-wsp').href = wspUrl;
 
   const DB = window.supabase.createClient(CONFIG.SUPABASE_URL, CONFIG.SUPABASE_KEY);
