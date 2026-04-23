@@ -160,7 +160,9 @@ async function cargarFicha(identificador) {
   document.getElementById('ficha-zona').innerHTML = `
     <svg width="14" height="14" fill="none" viewBox="0 0 24 24"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z" stroke="currentColor" stroke-width="2"/></svg>
     ${[p.zona, p.ciudad, 'Mendoza'].filter(Boolean).join(' · ')}`;
-  document.getElementById('ficha-desc').textContent = p.descripcion || '';
+  const descEl = document.getElementById('ficha-desc');
+  const descText = p.descripcion || '';
+  descEl.innerHTML = descText.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/\n/g,'<br>');
   document.getElementById('info-precio').textContent = formatPrecio(p.precio, p.moneda);
   document.getElementById('info-operacion').textContent = p.tipo_operacion || 'Venta';
   const specs = [
