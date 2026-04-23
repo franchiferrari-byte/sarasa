@@ -71,6 +71,77 @@ img { max-width: 100%; display: block; }
 }
 .nav-cta:hover { background: var(--azul-claro) !important; color: var(--blanco) !important; }
 
+/* ── NAV MOBILE TOGGLE ── */
+.nav-toggle {
+  display: none;
+  flex-direction: column;
+  justify-content: center;
+  gap: 5px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 8px;
+  border-radius: 6px;
+  transition: background .2s;
+}
+.nav-toggle:hover { background: var(--gris-claro); }
+.nav-toggle span {
+  display: block;
+  width: 22px;
+  height: 2px;
+  background: var(--azul);
+  border-radius: 2px;
+  transition: all .25s;
+}
+.nav-toggle.abierto span:nth-child(1) { transform: translateY(7px) rotate(45deg); }
+.nav-toggle.abierto span:nth-child(2) { opacity: 0; }
+.nav-toggle.abierto span:nth-child(3) { transform: translateY(-7px) rotate(-45deg); }
+
+.nav-mobile-menu {
+  display: none;
+  position: absolute;
+  top: 72px;
+  left: 0; right: 0;
+  background: var(--blanco);
+  border-bottom: 2px solid var(--dorado);
+  box-shadow: 0 8px 24px rgba(15,34,68,.12);
+  z-index: 99;
+  padding: 16px 20px 20px;
+  flex-direction: column;
+  gap: 4px;
+}
+.nav-mobile-menu.abierto { display: flex; }
+.nav-mobile-menu a {
+  color: var(--texto);
+  font-size: 15px;
+  font-weight: 500;
+  padding: 12px 8px;
+  border-bottom: 1px solid var(--gris-borde);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  transition: color .2s, padding-left .2s;
+}
+.nav-mobile-menu a:last-child { border-bottom: none; }
+.nav-mobile-menu a:hover { color: var(--dorado); padding-left: 14px; }
+.nav-mobile-menu a.nav-cta-mobile {
+  margin-top: 8px;
+  background: var(--azul);
+  color: var(--blanco) !important;
+  border-radius: 8px;
+  padding: 12px 16px;
+  justify-content: center;
+  font-weight: 600;
+  border-bottom: none;
+}
+.nav-mobile-menu a.nav-cta-mobile:hover { background: var(--azul-claro); padding-left: 16px; }
+
+@media (max-width: 768px) {
+  .nav-toggle { display: flex; }
+  .nav { position: relative; }
+}
+
+
 /* ── HERO ── */
 .hero {
   background: var(--azul);
