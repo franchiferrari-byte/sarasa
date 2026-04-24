@@ -203,5 +203,25 @@
   }
 </script>
 
+<script>
+  // ── MENÚ MÓVIL ──
+  function toggleNavMobile() {
+    var btn = document.getElementById('nav-toggle');
+    var menu = document.getElementById('nav-mobile-menu');
+    if (!btn || !menu) return;
+    btn.classList.toggle('abierto');
+    menu.classList.toggle('abierto');
+  }
+  document.addEventListener('DOMContentLoaded', function() {
+    // Cerrar menú al tocar un enlace (excepto wsp que es externo)
+    var links = document.querySelectorAll('.nav-mobile-menu a:not(#nav-mobile-wsp)');
+    links.forEach(function(a) {
+      a.addEventListener('click', function() {
+        document.getElementById('nav-toggle').classList.remove('abierto');
+        document.getElementById('nav-mobile-menu').classList.remove('abierto');
+      });
+    });
+  });
+</script>
 </body>
 </html>
