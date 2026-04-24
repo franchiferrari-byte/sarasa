@@ -226,6 +226,7 @@
 <script>
   const wspUrl = `https://wa.me/${CONFIG.WHATSAPP}`;
   document.getElementById('nav-wsp').href = wspUrl;
+  var mwsp = document.getElementById('nav-mobile-wsp'); if(mwsp) mwsp.href = wspUrl;
   document.getElementById('nav-mobile-wsp').href = wspUrl;
   function toggleNavMobile() {
     const btn = document.getElementById('nav-toggle');
