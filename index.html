@@ -408,6 +408,7 @@
   const wspInvert = `https://wa.me/${CONFIG.WHATSAPP}?text=${encodeURIComponent('Hola Lucas, quiero invertir en propiedades')}`;
 
   document.getElementById('nav-wsp').href = wsp;
+  var mwsp = document.getElementById('nav-mobile-wsp'); if(mwsp) mwsp.href = wsp;
   document.getElementById('wsp-flotante').href = wsp;
   document.getElementById('tel-link').href = wsp;
   document.getElementById('footer-wsp').href = wsp;
@@ -430,6 +431,26 @@
   }
 
   document.addEventListener('DOMContentLoaded', cargarDestacadas);
+</script>
+<script>
+  // ── MENÚ MÓVIL ──
+  function toggleNavMobile() {
+    var btn = document.getElementById('nav-toggle');
+    var menu = document.getElementById('nav-mobile-menu');
+    if (!btn || !menu) return;
+    btn.classList.toggle('abierto');
+    menu.classList.toggle('abierto');
+  }
+  document.addEventListener('DOMContentLoaded', function() {
+    // Cerrar menú al tocar un enlace (excepto wsp que es externo)
+    var links = document.querySelectorAll('.nav-mobile-menu a:not(#nav-mobile-wsp)');
+    links.forEach(function(a) {
+      a.addEventListener('click', function() {
+        document.getElementById('nav-toggle').classList.remove('abierto');
+        document.getElementById('nav-mobile-menu').classList.remove('abierto');
+      });
+    });
+  });
 </script>
 </body>
 </html>
