@@ -162,7 +162,7 @@ async function cargarFicha(identificador) {
     ${[p.zona, p.ciudad, 'Mendoza'].filter(Boolean).join(' · ')}`;
   const descEl = document.getElementById('ficha-desc');
   const descText = p.descripcion || '';
-  descEl.innerHTML = descText.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/\n/g,'<br>');
+  descEl.innerHTML = descText.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/\r\n/g,'<br>').replace(/\r/g,'<br>').replace(/\n/g,'<br>');
   document.getElementById('info-precio').textContent = formatPrecio(p.precio, p.moneda);
   document.getElementById('info-operacion').textContent = p.tipo_operacion || 'Venta';
   const specs = [
