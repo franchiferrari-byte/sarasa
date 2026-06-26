@@ -88,6 +88,42 @@
     @media (max-width: 768px) {
       .mapa-filtros { padding: 0 20px 12px; }
     }
+    .popup-prop .popup-acciones {
+      display: flex;
+      gap: 6px;
+      align-items: stretch;
+    }
+    .popup-prop .popup-acciones a {
+      flex: 1;
+    }
+    .popup-btn-copiar {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 4px;
+      background: #f3f4f6;
+      color: #0f1f3d;
+      border: 1.5px solid #d1d5db;
+      border-radius: 6px;
+      padding: 7px 10px;
+      font-size: 12px;
+      font-weight: 600;
+      cursor: pointer;
+      white-space: nowrap;
+      font-family: 'DM Sans', sans-serif;
+      transition: background 0.15s, border-color 0.15s, color 0.15s;
+      flex-shrink: 0;
+    }
+    .popup-btn-copiar:hover {
+      background: #0f1f3d;
+      color: #fff;
+      border-color: #0f1f3d;
+    }
+    .popup-btn-copiar.copiado {
+      background: #c8a84b;
+      color: #fff;
+      border-color: #c8a84b;
+    }
   </style>
 </head>
 
@@ -328,13 +364,21 @@
       const foto = fotos.length > 0 ? fotos[0].url : null;
       const zona = [p.zona, p.ciudad].filter(Boolean).join(' · ');
 
+      const propUrl = `https://lucasfranchi.com.ar/${p.slug ? 'propiedad.html?slug=' + p.slug : 'propiedad.html?id=' + p.id}`;
+      const popupId = `popup-${p.id}`;
       const popup = `
-        <div class="popup-prop">
+        <div class="popup-prop" id="${popupId}">
           ${foto ? `<img src="${foto}" alt="${p.titulo}" />` : ''}
           <strong>${p.titulo}</strong>
           <div class="popup-precio">${formatPrecio(p.precio, p.moneda)}</div>
           <div class="popup-zona">${zona}</div>
-          <a href="${p.slug ? 'propiedad.html?slug=' + p.slug : 'propiedad.html?id=' + p.id}" target="_blank" rel="noopener">Ver propiedad →</a>
+          <div class="popup-acciones">
+            <a href="${propUrl}" target="_blank" rel="noopener">Ver propiedad →</a>
+            <button class="popup-btn-copiar" title="Copiar link" onclick="copiarLinkPropiedad(this, '${propUrl}')">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+              Link
+            </button>
+          </div>
         </div>`;
 
       const marker = L.marker([p.lat, p.lng]).addTo(mapaObj);
@@ -347,6 +391,41 @@
 
     if (bounds.length > 1) mapaObj.fitBounds(bounds, { padding: [40, 40] });
     else if (bounds.length === 1) mapaObj.setView(bounds[0], 15);
+  }
+
+  function copiarLinkPropiedad(btn, url) {
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(url).then(() => {
+        btn.classList.add('copiado');
+        btn.innerHTML = '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg> ¡Copiado!';
+        setTimeout(() => {
+          btn.classList.remove('copiado');
+          btn.innerHTML = '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg> Link';
+        }, 2000);
+      }).catch(() => fallbackCopiar(btn, url));
+    } else {
+      fallbackCopiar(btn, url);
+    }
+  }
+
+  function fallbackCopiar(btn, url) {
+    const ta = document.createElement('textarea');
+    ta.value = url;
+    ta.style.position = 'fixed';
+    ta.style.opacity = '0';
+    document.body.appendChild(ta);
+    ta.focus();
+    ta.select();
+    try {
+      document.execCommand('copy');
+      btn.classList.add('copiado');
+      btn.innerHTML = '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg> ¡Copiado!';
+      setTimeout(() => {
+        btn.classList.remove('copiado');
+        btn.innerHTML = '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg> Link';
+      }, 2000);
+    } catch(e) {}
+    document.body.removeChild(ta);
   }
 
   cargarMapa();
