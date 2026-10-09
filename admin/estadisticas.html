@@ -2,6 +2,7 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8" />
+  <meta name="robots" content="noindex, nofollow" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Estadísticas — Lucas Franchi</title>
   <style>
@@ -185,6 +186,7 @@
     .tabla tr:last-child td { border-bottom: none; }
     .tabla tr:hover td { background: #fafafa; }
   </style>
+  <style id="auth-gate">html{visibility:hidden}</style>
 </head>
 <body>
 
@@ -253,10 +255,24 @@
 <script src="../js/config.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
 <script>
-// Verificar sesión
-if (sessionStorage.getItem('lf_admin') !== 'ok') window.location.href = 'login.html';
-
 const DB = window.supabase.createClient(CONFIG.SUPABASE_URL, CONFIG.SUPABASE_KEY);
+
+// ── Verificación de sesión REAL (Supabase Auth) ──────────────────────────────
+// La página queda oculta hasta confirmar que hay una sesión válida.
+(async () => {
+  try {
+    const { data } = await DB.auth.getSession();
+    if (!data || !data.session) { window.location.replace('login.html'); return; }
+    const gate = document.getElementById('auth-gate');
+    if (gate) gate.remove();
+  } catch (e) {
+    window.location.replace('login.html');
+  }
+})();
+// Si la sesión se cierra (por ejemplo, en otra pestaña), volver al login
+DB.auth.onAuthStateChange((evento) => {
+  if (evento === 'SIGNED_OUT') window.location.replace('login.html');
+});
 
 const set = (id, v) => { const el = document.getElementById(id); if (el) el.innerHTML = v; };
 const fmt = n => Number(n).toLocaleString('es-AR');
@@ -266,7 +282,7 @@ function barras(datos, color) {
   const max = datos[0][1] || 1;
   return datos.map(([label, n]) => `
     <div class="bar-row">
-      <div class="bar-label" title="${label}">${label}</div>
+      <div class="bar-label" title="${esc(label)}">${esc(label)}</div>
       <div class="bar-track"><div class="bar-fill" style="width:${Math.round(n/max*100)}%;background:${color}"></div></div>
       <div class="bar-count">${n}</div>
     </div>`).join('');
@@ -350,9 +366,9 @@ async function cargar() {
               day:'2-digit', month:'2-digit', year:'2-digit', hour:'2-digit', minute:'2-digit'
             });
             return `<tr>
-              <td>${v.propiedad_titulo || v.propiedad_slug || '—'}</td>
-              <td>${v.ciudad || '—'}</td>
-              <td>${v.tipo_operacion || '—'}</td>
+              <td>${esc(v.propiedad_titulo || v.propiedad_slug || '—')}</td>
+              <td>${esc(v.ciudad || '—')}</td>
+              <td>${esc(v.tipo_operacion || '—')}</td>
               <td>${fecha}</td>
             </tr>`;
           }).join('')}</tbody>
@@ -360,7 +376,7 @@ async function cargar() {
 
   } catch(e) {
     ['top-props','por-dia','por-ciudad','por-tipo','ultimas'].forEach(id =>
-      set(id, `<p style="color:#c62828;font-size:13px;">Error: ${e.message}</p>`));
+      set(id, `<p style="color:#c62828;font-size:13px;">Error: ${esc(e.message)}</p>`));
   }
 }
 

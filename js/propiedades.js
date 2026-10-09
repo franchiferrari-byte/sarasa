@@ -24,29 +24,29 @@ function renderCard(p) {
     return a.orden - b.orden;
   });
   const foto = fotos.length > 0
-    ? `<img src="${fotos[0].url}" alt="${p.titulo}" loading="lazy" style="width:100%;height:100%;object-fit:cover;object-position:center;display:block;" />`
+    ? `<img src="${esc(fotos[0].url)}" alt="${esc(p.titulo)}" loading="lazy" style="width:100%;height:100%;object-fit:cover;object-position:center;display:block;" />`
     : `<div class="sin-foto">Sin foto</div>`;
   // Usar slug para la URL si existe, sino fallback al id
   const href = p.slug
-    ? `propiedad.html?slug=${p.slug}`
-    : `propiedad.html?id=${p.id}`;
+    ? `propiedad.html?slug=${encodeURIComponent(p.slug)}`
+    : `propiedad.html?id=${encodeURIComponent(p.id)}`;
   return `
-    <a class="prop-card" href="${href}">
+    <a class="prop-card" href="${esc(href)}">
       <div class="prop-card-img">
         ${foto}
-        <span class="prop-badge ${badgeClass(p.tipo_operacion)}">${p.tipo_operacion || 'Venta'}</span>
+        <span class="prop-badge ${badgeClass(p.tipo_operacion)}">${esc(p.tipo_operacion || 'Venta')}</span>
       </div>
       <div class="prop-card-body">
         <div class="prop-zona">
           <svg width="12" height="12" fill="none" viewBox="0 0 24 24"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z" stroke="currentColor" stroke-width="2"/></svg>
-          ${p.ciudad || ''} ${p.zona ? '· ' + p.zona : ''}
+          ${esc(p.ciudad || '')} ${p.zona ? '· ' + esc(p.zona) : ''}
         </div>
-        <div class="prop-titulo">${p.titulo}</div>
-        <div class="prop-precio">${formatPrecio(p.precio, p.moneda)}</div>
+        <div class="prop-titulo">${esc(p.titulo)}</div>
+        <div class="prop-precio">${esc(formatPrecio(p.precio, p.moneda))}</div>
         <div class="prop-specs">
-          ${p.dormitorios ? `<span class="prop-spec"><strong>${p.dormitorios}</strong> dorm.</span>` : ''}
-          ${p.banos ? `<span class="prop-spec"><strong>${p.banos}</strong> baños</span>` : ''}
-          ${p.sup_cubierta ? `<span class="prop-spec"><strong>${p.sup_cubierta}</strong> m²</span>` : ''}
+          ${p.dormitorios ? `<span class="prop-spec"><strong>${esc(p.dormitorios)}</strong> dorm.</span>` : ''}
+          ${p.banos ? `<span class="prop-spec"><strong>${esc(p.banos)}</strong> baños</span>` : ''}
+          ${p.sup_cubierta ? `<span class="prop-spec"><strong>${esc(p.sup_cubierta)}</strong> m²</span>` : ''}
         </div>
         <div class="prop-ver">Ver detalles →</div>
       </div>
@@ -72,7 +72,7 @@ async function cargarDestacadas() {
       ? data.map(renderCard).join('')
       : '<p style="color:var(--gris-texto);padding:40px;text-align:center;grid-column:1/-1;">No hay propiedades cargadas aún.</p>';
   } catch(e) {
-    grilla.innerHTML = `<p style="color:#c62828;padding:40px;text-align:center;grid-column:1/-1;">Error: ${e.message}</p>`;
+    grilla.innerHTML = `<p style="color:#c62828;padding:40px;text-align:center;grid-column:1/-1;">Error: ${esc(e.message)}</p>`;
   }
 }
 
@@ -114,7 +114,7 @@ async function cargarPropiedades(filtros = {}) {
       ? resultado.map(renderCard).join('')
       : '<p style="color:var(--gris-texto);padding:40px;text-align:center;grid-column:1/-1;">No se encontraron propiedades.</p>';
   } catch(e) {
-    grilla.innerHTML = `<p style="color:#c62828;padding:40px;text-align:center;grid-column:1/-1;">Error: ${e.message}</p>`;
+    grilla.innerHTML = `<p style="color:#c62828;padding:40px;text-align:center;grid-column:1/-1;">Error: ${esc(e.message)}</p>`;
   }
 }
 
@@ -150,8 +150,8 @@ async function cargarFicha(identificador) {
   if (fotos.length > 0) {
     mainImg.style.backgroundImage = `url('${fotos[0].url}')`;
     thumbsEl.innerHTML = fotos.map((f, i) => `
-      <img src="${f.url}" alt="Foto ${i+1}" class="${i===0?'activa':''}"
-        onclick="cambiarFoto('${f.url}', this)" loading="lazy" />`).join('');
+      <img src="${esc(f.url)}" data-url="${esc(f.url)}" alt="Foto ${i+1}" class="${i===0?'activa':''}"
+        onclick="cambiarFoto(this.dataset.url, this)" loading="lazy" />`).join('');
   } else {
     document.querySelector('.galeria-principal').innerHTML =
       '<div style="height:100%;display:flex;align-items:center;justify-content:center;color:var(--gris-texto);">Sin fotos disponibles</div>';
@@ -159,7 +159,7 @@ async function cargarFicha(identificador) {
   document.getElementById('ficha-titulo').textContent = p.titulo;
   document.getElementById('ficha-zona').innerHTML = `
     <svg width="14" height="14" fill="none" viewBox="0 0 24 24"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z" stroke="currentColor" stroke-width="2"/></svg>
-    ${[p.zona, p.ciudad, 'Mendoza'].filter(Boolean).join(' · ')}`;
+    ${esc([p.zona, p.ciudad, 'Mendoza'].filter(Boolean).join(' · '))}`;
   const descEl = document.getElementById('ficha-desc');
   const descText = p.descripcion || '';
   descEl.innerHTML = descText.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/\r\n/g,'<br>').replace(/\r/g,'<br>').replace(/\n/g,'<br>');
@@ -174,18 +174,18 @@ async function cargarFicha(identificador) {
     { val: p.antiguedad ? p.antiguedad + ' años' : null, label: 'Antigüedad' },
   ].filter(s => s.val);
   document.getElementById('ficha-specs').innerHTML = specs.map(s =>
-    `<div class="ficha-spec"><strong>${s.val}</strong><span>${s.label}</span></div>`).join('');
+    `<div class="ficha-spec"><strong>${esc(s.val)}</strong><span>${s.label}</span></div>`).join('');
   document.getElementById('info-detalles').innerHTML = [
-    p.tipo_propiedad ? `<div class="detalle-item"><p>Tipo</p><strong>${p.tipo_propiedad}</strong></div>` : '',
-    p.sup_cubierta   ? `<div class="detalle-item"><p>Sup. cubierta</p><strong>${p.sup_cubierta} m²</strong></div>` : '',
-    p.sup_total      ? `<div class="detalle-item"><p>Sup. total</p><strong>${p.sup_total} m²</strong></div>` : '',
-    p.antiguedad     ? `<div class="detalle-item"><p>Antigüedad</p><strong>${p.antiguedad} años</strong></div>` : '',
+    p.tipo_propiedad ? `<div class="detalle-item"><p>Tipo</p><strong>${esc(p.tipo_propiedad)}</strong></div>` : '',
+    p.sup_cubierta   ? `<div class="detalle-item"><p>Sup. cubierta</p><strong>${esc(p.sup_cubierta)} m²</strong></div>` : '',
+    p.sup_total      ? `<div class="detalle-item"><p>Sup. total</p><strong>${esc(p.sup_total)} m²</strong></div>` : '',
+    p.antiguedad     ? `<div class="detalle-item"><p>Antigüedad</p><strong>${esc(p.antiguedad)} años</strong></div>` : '',
     p.apta_credito   ? `<div class="detalle-item"><p>Apta crédito</p><strong>Sí</strong></div>` : '',
-    p.ciudad         ? `<div class="detalle-item"><p>Ciudad</p><strong>${p.ciudad}</strong></div>` : '',
+    p.ciudad         ? `<div class="detalle-item"><p>Ciudad</p><strong>${esc(p.ciudad)}</strong></div>` : '',
   ].join('');
   const msg = encodeURIComponent(`Hola Lucas! Me interesa la propiedad: ${p.titulo}`);
   document.getElementById('btn-wsp').href = `https://wa.me/${CONFIG.WHATSAPP}?text=${msg}`;
-  document.getElementById('btn-email').href = `mailto:${CONFIG.EMAIL}?subject=Consulta: ${p.titulo}`;
+  document.getElementById('btn-email').href = `mailto:${CONFIG.EMAIL}?subject=${encodeURIComponent('Consulta: ' + p.titulo)}`;
   // QR siempre visible — apunta a la URL de esta publicación
   if (typeof QRCode !== 'undefined') {
     new QRCode(document.getElementById('qr-canvas-compartir'), {
@@ -226,7 +226,7 @@ async function cargarFicha(identificador) {
 
   // Tour 360
   const tourWrap = document.getElementById('tour360-wrap');
-  if (tourWrap && p.tour_360) {
+  if (tourWrap && p.tour_360 && /^https:\/\//i.test(p.tour_360)) {
     document.getElementById('tour360-iframe').src = p.tour_360;
     tourWrap.style.display = 'block';
   }

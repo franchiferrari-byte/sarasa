@@ -2,6 +2,7 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8" />
+  <meta name="robots" content="noindex, nofollow" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Panel Admin — Lucas Franchi</title>
   <link rel="icon" type="image/png" href="../img/favicon.png" />
@@ -211,6 +212,7 @@
     .link-externo-wrap input { padding-right: 40px; }
     .link-clear { position: absolute; right: 12px; top: 50%; transform: translateY(-50%); background: none; border: none; color: var(--gris-texto); cursor: pointer; font-size: 16px; }
   </style>
+  <style id="auth-gate">html{visibility:hidden}</style>
 </head>
   <!-- Google tag (gtag.js) -->
 <script async src="https://www.googletagmanager.com/gtag/js?id=G-T5YCECGL58"></script>
@@ -734,16 +736,31 @@
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 <script>
-if (sessionStorage.getItem('lf_admin') !== 'ok') window.location.href = 'login.html';
-
 const DB = window.supabase.createClient(
   CONFIG.SUPABASE_URL,
   CONFIG.SUPABASE_KEY
 );
+
+// ── Verificación de sesión REAL (Supabase Auth) ──────────────────────────────
+// La página queda oculta hasta confirmar que hay una sesión válida.
+(async () => {
+  try {
+    const { data } = await DB.auth.getSession();
+    if (!data || !data.session) { window.location.replace('login.html'); return; }
+    const gate = document.getElementById('auth-gate');
+    if (gate) gate.remove();
+  } catch (e) {
+    window.location.replace('login.html');
+  }
+})();
+// Si la sesión se cierra (por ejemplo, en otra pestaña), volver al login
+DB.auth.onAuthStateChange((evento) => {
+  if (evento === 'SIGNED_OUT') window.location.replace('login.html');
+});
 let fotos = [];
 
-function cerrarSesion() {
-  sessionStorage.removeItem('lf_admin');
+async function cerrarSesion() {
+  await DB.auth.signOut();
   window.location.href = 'login.html';
 }
 
@@ -984,21 +1001,21 @@ function renderLista(data) {
       ? '<span style="font-size:10px;background:#e8f5e9;color:#2e7d32;border:1px solid #a5d6a7;border-radius:4px;padding:2px 7px;font-weight:600;">ACTIVA</span>'
       : '<span style="font-size:10px;background:#fff3e0;color:#e65100;border:1px solid #ffcc80;border-radius:4px;padding:2px 7px;font-weight:600;">INACTIVA</span>';
     return `<div class="prop-row">
-      ${foto ? `<img class="prop-row-img" src="${foto}" />` : '<div class="prop-row-img"></div>'}
+      ${foto ? `<img class="prop-row-img" src="${esc(foto)}" />` : '<div class="prop-row-img"></div>'}
       <div class="prop-row-info">
-        <h3>${p.titulo}</h3>
-        <p>${p.ciudad || ''} ${p.zona ? '· ' + p.zona : ''} · ${normalizarTipo(p.tipo_propiedad) || ''}</p>
+        <h3>${esc(p.titulo)}</h3>
+        <p>${esc(p.ciudad || '')} ${p.zona ? '· ' + esc(p.zona) : ''} · ${esc(normalizarTipo(p.tipo_propiedad) || '')}</p>
         <div style="display:flex;gap:6px;margin-top:4px;">
-          <span class="prop-badge-op">${p.tipo_operacion || 'Venta'}</span>
+          <span class="prop-badge-op">${esc(p.tipo_operacion || 'Venta')}</span>
           ${badgeActiva}
         </div>
       </div>
-      <div class="prop-row-precio">${precio}</div>
+      <div class="prop-row-precio">${esc(precio)}</div>
       <div class="prop-row-actions">
-        <button class="btn-ver" onclick="window.open('${p.slug ? '/propiedad.html?slug=' + p.slug : '/propiedad.html?id=' + p.id}','_blank')">Ver</button>
-        <button class="btn-ficha" onclick="generarFicha('${p.id}')">📄 Ficha</button>
-        <button class="btn-editar" onclick="abrirEdicion('${p.id}')">Editar</button>
-        <button class="btn-del" onclick="eliminar('${p.id}')">Eliminar</button>
+        <button class="btn-ver" data-href="${esc(p.slug ? '/propiedad.html?slug=' + encodeURIComponent(p.slug) : '/propiedad.html?id=' + encodeURIComponent(p.id))}" onclick="window.open(this.dataset.href,'_blank')">Ver</button>
+        <button class="btn-ficha" data-id="${esc(p.id)}" onclick="generarFicha(this.dataset.id)">📄 Ficha</button>
+        <button class="btn-editar" data-id="${esc(p.id)}" onclick="abrirEdicion(this.dataset.id)">Editar</button>
+        <button class="btn-del" data-id="${esc(p.id)}" onclick="eliminar(this.dataset.id)">Eliminar</button>
       </div>
     </div>`;
   }).join('');
@@ -1058,7 +1075,7 @@ function renderFotosEdicion() {
     div.dataset.tipo = 'existente';
     div.style.cssText = 'position:relative;cursor:grab;';
     div.innerHTML = `
-      <img src="${f.url}" style="width:100px;height:100px;object-fit:cover;border-radius:8px;border:2px solid ${f.es_principal ? 'var(--dorado)' : 'var(--gris-borde)'};" />
+      <img src="${esc(f.url)}" style="width:100px;height:100px;object-fit:cover;border-radius:8px;border:2px solid ${f.es_principal ? 'var(--dorado)' : 'var(--gris-borde)'};" />
       ${f.es_principal ? '<div class="principal-badge">⭐ Principal</div>' : ''}
       <button onclick="setPrincipalEdicion('existente', ${i})" title="Hacer principal" style="position:absolute;top:-6px;left:-6px;width:22px;height:22px;background:var(--dorado);color:var(--azul);border:none;border-radius:50%;cursor:pointer;font-size:11px;display:flex;align-items:center;justify-content:center;">⭐</button>
       <button onclick="quitarFotoEdicion('existente', ${i})" style="position:absolute;top:-6px;right:-6px;width:22px;height:22px;background:#e53935;color:#fff;border:none;border-radius:50%;cursor:pointer;font-size:14px;display:flex;align-items:center;justify-content:center;">×</button>`;
@@ -1374,7 +1391,7 @@ async function cargarEstadisticas() {
       ? '<p class="est-loading">Sin datos aún.</p>'
       : topProps.map(([id, n]) => `
         <div class="est-bar-row">
-          <div class="est-bar-label" title="${tituloProp[id]}">${tituloProp[id]}</div>
+          <div class="est-bar-label" title="${esc(tituloProp[id])}">${esc(tituloProp[id])}</div>
           <div class="est-bar-track"><div class="est-bar-fill" style="width:${Math.round(n/maxProp*100)}%"></div></div>
           <div class="est-bar-count">${n}</div>
         </div>`).join(''));
@@ -1414,7 +1431,7 @@ async function cargarEstadisticas() {
       ? '<p class="est-loading">Sin datos aún.</p>'
       : topCiudad.map(([c, n]) => `
         <div class="est-bar-row">
-          <div class="est-bar-label">${c}</div>
+          <div class="est-bar-label">${esc(c)}</div>
           <div class="est-bar-track"><div class="est-bar-fill" style="width:${Math.round(n/maxCiudad*100)}%;background:#2e7d32"></div></div>
           <div class="est-bar-count">${n}</div>
         </div>`).join(''));
@@ -1431,7 +1448,7 @@ async function cargarEstadisticas() {
       ? '<p class="est-loading">Sin datos aún.</p>'
       : topTipo.map(([t, n]) => `
         <div class="est-bar-row">
-          <div class="est-bar-label">${t}</div>
+          <div class="est-bar-label">${esc(t)}</div>
           <div class="est-bar-track"><div class="est-bar-fill" style="width:${Math.round(n/maxTipo*100)}%;background:#6a1b9a"></div></div>
           <div class="est-bar-count">${n}</div>
         </div>`).join(''));
@@ -1448,9 +1465,9 @@ async function cargarEstadisticas() {
               hour: '2-digit', minute: '2-digit'
             });
             return `<tr>
-              <td>${v.propiedad_titulo || v.propiedad_slug || '—'}</td>
-              <td>${v.ciudad || '—'}</td>
-              <td>${v.tipo_operacion || '—'}</td>
+              <td>${esc(v.propiedad_titulo || v.propiedad_slug || '—')}</td>
+              <td>${esc(v.ciudad || '—')}</td>
+              <td>${esc(v.tipo_operacion || '—')}</td>
               <td>${fecha}</td>
             </tr>`;
           }).join('')}</tbody>
@@ -1763,7 +1780,7 @@ async function generarFicha(id) {
     const atributosHTML = atributos.map(a => `
       <div class="atributo-item">
         ${a.icon}
-        <span>${a.label}</span>
+        <span>${esc(a.label)}</span>
       </div>`).join('');
 
     // Layout fotos: 1 grande arriba, 2 secundarias abajo
@@ -1782,7 +1799,7 @@ async function generarFicha(id) {
 <html lang="es">
 <head>
 <meta charset="UTF-8"/>
-<title>Ficha — ${p.titulo}</title>
+<title>Ficha — ${esc(p.titulo)}</title>
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=Lato:wght@300;400;700&display=swap" rel="stylesheet"/>
 <style>
   * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -1854,27 +1871,27 @@ async function generarFicha(id) {
   <div class="gold-bar"></div>
 
   <div class="titulo-bloque">
-    <h1>${tituloGrande}</h1>
-    <div class="ubicacion">${iconPin} ${ubicacionLabel || p.ciudad || 'Mendoza'}</div>
+    <h1>${esc(tituloGrande)}</h1>
+    <div class="ubicacion">${iconPin} ${esc(ubicacionLabel || p.ciudad || 'Mendoza')}</div>
   </div>
 
   ${foto1 ? `
   <div class="foto-principal-wrap">
-    <img class="foto-principal" src="${foto1}" alt="Foto principal" />
-    ${ubicacionLabel ? `<div class="foto-label">${ubicacionLabel.toUpperCase()}</div>` : ''}
+    <img class="foto-principal" src="${esc(foto1)}" alt="Foto principal" />
+    ${ubicacionLabel ? `<div class="foto-label">${esc(ubicacionLabel.toUpperCase())}</div>` : ''}
   </div>` : ''}
 
   ${(foto2 || foto3) ? `
   <div class="fotos-secundarias">
-    ${foto2 ? `<img src="${foto2}" alt="Foto 2" />` : '<div style="width:50%;background:#f0f0f0;"></div>'}
-    ${foto3 ? `<img src="${foto3}" alt="Foto 3" />` : '<div style="width:50%;background:#f0f0f0;"></div>'}
+    ${foto2 ? `<img src="${esc(foto2)}" alt="Foto 2" />` : '<div style="width:50%;background:#f0f0f0;"></div>'}
+    ${foto3 ? `<img src="${esc(foto3)}" alt="Foto 3" />` : '<div style="width:50%;background:#f0f0f0;"></div>'}
   </div>` : ''}
 
   <div class="body-grid">
     <div class="col-izq">
       ${p.descripcion ? `
       <div class="section-label">Detalle</div>
-      <div class="descripcion">${p.descripcion}</div>` : ''}
+      <div class="descripcion">${esc(p.descripcion)}</div>` : ''}
     </div>
 
     <div class="col-der">

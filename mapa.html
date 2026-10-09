@@ -364,17 +364,17 @@
       const foto = fotos.length > 0 ? fotos[0].url : null;
       const zona = [p.zona, p.ciudad].filter(Boolean).join(' · ');
 
-      const propUrl = `https://lucasfranchi.com.ar/${p.slug ? 'propiedad.html?slug=' + p.slug : 'propiedad.html?id=' + p.id}`;
+      const propUrl = `https://lucasfranchi.com.ar/${p.slug ? 'propiedad.html?slug=' + encodeURIComponent(p.slug) : 'propiedad.html?id=' + encodeURIComponent(p.id)}`;
       const popupId = `popup-${p.id}`;
       const popup = `
-        <div class="popup-prop" id="${popupId}">
-          ${foto ? `<img src="${foto}" alt="${p.titulo}" />` : ''}
-          <strong>${p.titulo}</strong>
-          <div class="popup-precio">${formatPrecio(p.precio, p.moneda)}</div>
-          <div class="popup-zona">${zona}</div>
+        <div class="popup-prop" id="${esc(popupId)}">
+          ${foto ? `<img src="${esc(foto)}" alt="${esc(p.titulo)}" />` : ''}
+          <strong>${esc(p.titulo)}</strong>
+          <div class="popup-precio">${esc(formatPrecio(p.precio, p.moneda))}</div>
+          <div class="popup-zona">${esc(zona)}</div>
           <div class="popup-acciones">
-            <a href="${propUrl}" target="_blank" rel="noopener">Ver propiedad →</a>
-            <button class="popup-btn-copiar" title="Copiar link" onclick="copiarLinkPropiedad(this, '${propUrl}')">
+            <a href="${esc(propUrl)}" target="_blank" rel="noopener">Ver propiedad →</a>
+            <button class="popup-btn-copiar" title="Copiar link" data-url="${esc(propUrl)}" onclick="copiarLinkPropiedad(this, this.dataset.url)">
               <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
               Link
             </button>

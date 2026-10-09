@@ -290,7 +290,7 @@
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
       attribution: '© OpenStreetMap'
     }).addTo(mapa);
-    L.marker([lat, lng]).addTo(mapa).bindPopup(titulo).openPopup();
+    L.marker([lat, lng]).addTo(mapa).bindPopup(esc(titulo)).openPopup();
   }
 
   // ── SEO DINÁMICO ──

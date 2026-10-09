@@ -2,6 +2,7 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8" />
+  <meta name="robots" content="noindex, nofollow" />
   <link rel="icon" type="image/png" href="../img/favicon.png" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Acceso Admin — Lucas Franchi</title>
@@ -67,29 +68,49 @@
     <p>Acceso exclusivo — Lucas Franchi Inmobiliaria</p>
 
     <div class="campo">
-      <label>Contraseña</label>
-      <input type="password" id="password" placeholder="••••••••••" onkeydown="if(event.key==='Enter')login()" />
+      <label>Email</label>
+      <input type="email" id="email" placeholder="tu@email.com" autocomplete="username" onkeydown="if(event.key==='Enter')login()" />
     </div>
-    <button class="btn-login" onclick="login()">Ingresar</button>
-    <p class="error" id="error-msg">Contraseña incorrecta.</p>
+    <div class="campo">
+      <label>Contraseña</label>
+      <input type="password" id="password" placeholder="••••••••••" autocomplete="current-password" onkeydown="if(event.key==='Enter')login()" />
+    </div>
+    <button class="btn-login" id="btn-login" onclick="login()">Ingresar</button>
+    <p class="error" id="error-msg">Email o contraseña incorrectos.</p>
   </div>
 
   <script src="../js/config.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
   <script>
-    // Si ya está logueado, redirigir al panel
-    if (sessionStorage.getItem('lf_admin') === 'ok') {
-      window.location.href = 'panel.html';
-    }
+    const DB = window.supabase.createClient(CONFIG.SUPABASE_URL, CONFIG.SUPABASE_KEY);
 
-    function login() {
-      const pass = document.getElementById('password').value;
-      if (pass === CONFIG.ADMIN_PASSWORD) {
-        sessionStorage.setItem('lf_admin', 'ok');
-        window.location.href = 'panel.html';
-      } else {
-        document.getElementById('error-msg').style.display = 'block';
-        document.getElementById('password').value = '';
+    // Si ya hay una sesión real activa, ir directo al panel
+    DB.auth.getSession().then(({ data }) => {
+      if (data && data.session) window.location.href = 'panel.html';
+    });
+
+    async function login() {
+      const email = document.getElementById('email').value.trim();
+      const pass  = document.getElementById('password').value;
+      const errEl = document.getElementById('error-msg');
+      const btn   = document.getElementById('btn-login');
+      errEl.style.display = 'none';
+      if (!email || !pass) {
+        errEl.textContent = 'Completá el email y la contraseña.';
+        errEl.style.display = 'block';
+        return;
       }
+      btn.disabled = true;
+      const { error } = await DB.auth.signInWithPassword({ email, password: pass });
+      btn.disabled = false;
+      if (error) {
+        // Mensaje genérico a propósito: no revela si el email existe
+        errEl.textContent = 'Email o contraseña incorrectos.';
+        errEl.style.display = 'block';
+        document.getElementById('password').value = '';
+        return;
+      }
+      window.location.href = 'panel.html';
     }
   </script>
 </body>
