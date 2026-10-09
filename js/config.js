@@ -9,7 +9,7 @@ const CONFIG = {
   // SUPABASE — Settings → API
   // La clave anon/publishable es pública por diseño: la protegen las reglas RLS
   SUPABASE_URL: 'https://tvlvubhglniddcrhdujz.supabase.co',
-  SUPABASE_KEY: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InR2bHZ1YmhnbG5pZGRjcmhkdWp6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzU0MzEwNjEsImV4cCI6MjA5MTAwNzA2MX0.o6z8J8ziK2rPKPFggZ-xPYwsh5rNUtmaUn_c9jIsKMk',
+  SUPABASE_KEY: 'sb_publishable_Xyvw1C334qa5flHK17_qOQ_EjH5Ep6u',
 
   // CLOUDINARY — Dashboard (nombre de la nube y preset sin firmar: públicos por diseño)
   CLOUDINARY_CLOUD: 'dbduyd6ke',
