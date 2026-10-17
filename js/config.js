@@ -19,7 +19,7 @@ const CONFIG = {
   WHATSAPP: '5492612096351',
   INSTAGRAM: 'https://www.instagram.com/lucasfranchiccpim/',
   FACEBOOK: 'https://www.facebook.com/lucasfranchiccpim',
-  EMAIL: 'lucas@lucasfranchi.com.ar',
+  EMAIL: 'info@lucasfranchi.com.ar',
 };
 
 // Escapa texto para insertarlo de forma segura dentro de HTML (evita XSS)
