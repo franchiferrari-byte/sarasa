@@ -7,7 +7,7 @@ Dominio: https://www.lucasfranchi.com.ar
 
 - Sitio **estático** (HTML + CSS + JS, sin build ni dependencias locales), publicado con **GitHub Pages** desde la rama `main`. El dominio lo define el archivo `CNAME`.
 - **Datos:** Supabase (tablas `propiedades`, `propiedades_fotos`, `visitas`). La seguridad depende de las reglas RLS: el público solo lee lo activo e inserta visitas validadas; escribir requiere `es_admin()`, que compara `auth.uid()` con el UUID del único admin. El registro de usuarios está cerrado.
-- **Fotos:** Cloudinary, con un preset sin firmar.
+- **Fotos:** Cloudinary, con un preset sin firmar (`lucasfranchi_fotos`) restringido: carpeta `propiedades`, sin overwrite, public ID aleatorio, solo jpg/jpeg/png/webp/heic y fotos limitadas a 2000 px (incoming `c_limit,w_2000,h_2000,q_auto`).
 - **Mapas:** Leaflet + geocodificación con Nominatim (OpenStreetMap).
 - **Analytics:** Google Analytics (gtag `G-T5YCECGL58`).
 
@@ -46,6 +46,4 @@ Dominio: https://www.lucasfranchi.com.ar
 
 ## Pendientes conocidos
 
-- Tabla `consultas` (sin uso en el sitio): lectura e inserción públicas. Borrarla o dejar la lectura solo para el admin.
-- El preset sin firmar de Cloudinary permite que cualquiera suba archivos: restringirlo (formatos, tamaño, carpeta) o pasar a subidas firmadas.
 - Las meta OG de cada propiedad se cargan por JS, así que WhatsApp y Facebook no las ven al compartir.
