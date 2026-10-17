@@ -6,7 +6,7 @@ Dominio: https://www.lucasfranchi.com.ar
 ## Cómo funciona
 
 - Sitio **estático** (HTML + CSS + JS, sin build ni dependencias locales), publicado con **GitHub Pages** desde la rama `main`. El dominio lo define el archivo `CNAME`.
-- **Datos:** Supabase (tablas `propiedades`, `propiedades_fotos`, `visitas`). La seguridad depende de las reglas RLS configuradas en Supabase.
+- **Datos:** Supabase (tablas `propiedades`, `propiedades_fotos`, `visitas`). La seguridad depende de las reglas RLS: el público solo lee lo activo e inserta visitas validadas; escribir requiere `es_admin()`, que compara `auth.uid()` con el UUID del único admin. El registro de usuarios está cerrado.
 - **Fotos:** Cloudinary, con un preset sin firmar.
 - **Mapas:** Leaflet + geocodificación con Nominatim (OpenStreetMap).
 - **Analytics:** Google Analytics (gtag `G-T5YCECGL58`).
@@ -19,6 +19,8 @@ Dominio: https://www.lucasfranchi.com.ar
 | `propiedades.html` | Listado con filtros |
 | `propiedad.html` | Ficha de una propiedad (`?slug=` o `?id=`) |
 | `mapa.html` | Mapa de propiedades |
+| `privacidad.html` | Política de privacidad (Ley 25.326, cookies de GA, derechos, leyenda AAIP) |
+| `seguridad.html` | Seguridad y aviso legal (quién publica, info orientativa, prevención de estafas) |
 | `admin/login.html` | Login del admin (Supabase Auth) |
 | `admin/panel.html` | Panel para crear y editar propiedades y subir fotos |
 | `admin/estadisticas.html` | Estadísticas de visitas |
@@ -36,9 +38,14 @@ Dominio: https://www.lucasfranchi.com.ar
 - Textos del sitio en español rioplatense (voseo).
 - No hay entorno de prueba: para ver cambios en local, abrir los HTML con un servidor estático (por ejemplo `python3 -m http.server`) desde la raíz del repo. Ojo: el sitio local lee la base de Supabase **real**.
 
+## Seguridad en el código
+
+- Las librerías externas van con versión exacta y `integrity` (SRI). Si se cambia una versión, recalcular el hash: `curl -sL <url> | openssl dgst -sha384 -binary | openssl base64 -A`.
+- Las páginas de `admin/` tienen una CSP en `<meta>`. Si se agrega un servicio externo nuevo al panel, sumarlo ahí.
+- `_config.yml` excluye `CLAUDE.md` del sitio publicado.
+
 ## Pendientes conocidos
 
-- `admin/login.html`: el script de Google Analytics está entre `</head>` y `<body>`.
-- Dominio inconsistente: `CNAME` usa `www.`; `sitemap.xml`, `robots.txt` y los canonical usan la versión sin `www`.
-- `supabase-js@2` se carga sin versión exacta.
-- `sitemap.xml`: fechas de abril 2026, e incluye `propiedad.html` sin parámetros.
+- Tabla `consultas` (sin uso en el sitio): lectura e inserción públicas. Borrarla o dejar la lectura solo para el admin.
+- El preset sin firmar de Cloudinary permite que cualquiera suba archivos: restringirlo (formatos, tamaño, carpeta) o pasar a subidas firmadas.
+- Las meta OG de cada propiedad se cargan por JS, así que WhatsApp y Facebook no las ven al compartir.

@@ -3,11 +3,13 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="robots" content="noindex, nofollow" />
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://unpkg.com https://cdnjs.cloudflare.com https://www.googletagmanager.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://unpkg.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: blob: https://res.cloudinary.com https://*.tile.openstreetmap.org https://unpkg.com https://*.google-analytics.com https://*.googletagmanager.com; connect-src 'self' https://tvlvubhglniddcrhdujz.supabase.co wss://tvlvubhglniddcrhdujz.supabase.co https://api.cloudinary.com https://nominatim.openstreetmap.org https://*.google-analytics.com https://*.analytics.google.com https://*.googletagmanager.com; frame-src 'none'; object-src 'none'; base-uri 'self'; form-action 'self'" />
+  <meta name="referrer" content="strict-origin-when-cross-origin" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Panel Admin — Lucas Franchi</title>
   <link rel="icon" type="image/png" href="../img/favicon.png" />
   <link rel="stylesheet" href="../css/estilos.css" />
-  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha384-sHL9NAb7lN7rfvG5lfHpm643Xkcjzp4jFvuavGOndn6pjVqS6ny56CAt3nsEVT4H" crossorigin="anonymous" />
   <style>
     body { background: var(--gris-claro); }
     .topbar {
@@ -213,7 +215,6 @@
     .link-clear { position: absolute; right: 12px; top: 50%; transform: translateY(-50%); background: none; border: none; color: var(--gris-texto); cursor: pointer; font-size: 16px; }
   </style>
   <style id="auth-gate">html{visibility:hidden}</style>
-</head>
   <!-- Google tag (gtag.js) -->
 <script async src="https://www.googletagmanager.com/gtag/js?id=G-T5YCECGL58"></script>
 <script>
@@ -223,6 +224,7 @@
 
   gtag('config', 'G-T5YCECGL58');
 </script>
+</head>
 <body>
 
 <!-- TOPBAR -->
@@ -235,7 +237,7 @@
     </div>
   </div>
   <div class="topbar-right">
-    <a href="../index.html" class="btn-home" target="_blank">
+    <a href="../index.html" class="btn-home" target="_blank" rel="noopener">
       <svg width="13" height="13" fill="none" viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z" stroke="currentColor" stroke-width="2"/></svg>
       Ver sitio
     </a>
@@ -733,8 +735,8 @@
 </style>
 
 <script src="../js/config.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.117.2/dist/umd/supabase.min.js" integrity="sha384-WgXwGL6fUsYJWNaKJgVbrJKGRQwc1vieh2oy4kw9nXqpNDz3tdSsqEYUgeHD/NuF" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js" integrity="sha384-3zSEDfvllQohrq0PHL1fOXJuC/jSOO34H46t6UQfobFOmxE5BpjjaIJY5F2/bMnU" crossorigin="anonymous"></script>
 <script>
 const DB = window.supabase.createClient(
   CONFIG.SUPABASE_URL,
@@ -851,6 +853,14 @@ async function subirFoto(file, i, total) {
   return data.secure_url;
 }
 
+// Devuelve la URL si es https (o null si está vacía); si no, lanza un error con el nombre del campo
+function urlHttps(valor, campo) {
+  const v = (valor || '').trim();
+  if (!v) return null;
+  if (!/^https:\/\/[^\s"'<>]+$/i.test(v)) throw new Error(`${campo}: tiene que ser un link que empiece con https://`);
+  return v;
+}
+
 // Publicar
 async function publicar() {
   const titulo = document.getElementById('titulo').value.trim();
@@ -869,6 +879,8 @@ async function publicar() {
     const _sufijo = Math.random().toString(36).substring(2, 6);
     const _slugPartes = [_op, _tipo, _ciu, _zona].filter(Boolean);
     const slugNuevo = generarSlugLocal(_slugPartes.join(' ')) + '-' + _sufijo;
+    const _link   = urlHttps(document.getElementById('link-externo').value, 'Link externo');
+    const _tour   = urlHttps(document.getElementById('tour360').value, 'Tour 360°');
 
     const { data: prop, error } = await DB.from('propiedades').insert({
       titulo,
@@ -889,8 +901,8 @@ async function publicar() {
       antiguedad: document.getElementById('antig').value || null,
       destacada: document.getElementById('destacada').checked,
       apta_credito: document.getElementById('credito').checked,
-      link_externo: document.getElementById('link-externo').value.trim() || null,
-      tour_360: document.getElementById('tour360').value.trim() || null,
+      link_externo: _link,
+      tour_360: _tour,
       lat: parseFloat(document.getElementById('lat').value) || null,
       lng: parseFloat(document.getElementById('lng').value) || null,
       activa: true,
@@ -1024,6 +1036,7 @@ function renderLista(data) {
 // Estado fotos edición
 let editFotosExistentes = []; // {id, url, orden, es_principal}
 let editFotosNuevas = [];     // File objects
+let editFotosEliminadas = []; // ids de fotos existentes que se quitaron
 
 // Edición
 async function abrirEdicion(id) {
@@ -1058,6 +1071,7 @@ async function abrirEdicion(id) {
 
   editFotosExistentes = fotos ? fotos.map(f => ({...f})) : [];
   editFotosNuevas = [];
+  editFotosEliminadas = [];
   renderFotosEdicion();
 
   document.getElementById('modal-edicion').classList.add('visible');
@@ -1134,8 +1148,10 @@ function setPrincipalEdicion(tipo, idx) {
 }
 
 function quitarFotoEdicion(tipo, idx) {
-  if (tipo === 'existente') editFotosExistentes.splice(idx, 1);
-  else editFotosNuevas.splice(idx, 1);
+  if (tipo === 'existente') {
+    const [quitada] = editFotosExistentes.splice(idx, 1);
+    if (quitada && quitada.id) editFotosEliminadas.push(quitada.id);
+  } else editFotosNuevas.splice(idx, 1);
   renderFotosEdicion();
 }
 
@@ -1149,11 +1165,17 @@ function cerrarModal() {
   document.getElementById('modal-edicion').classList.remove('visible');
   editFotosExistentes = [];
   editFotosNuevas = [];
+  editFotosEliminadas = [];
 }
 
 async function guardarEdicion() {
   const id = document.getElementById('edit-id').value;
   const progEl = document.getElementById('edit-progreso-fotos');
+  let _link, _tour;
+  try {
+    _link = urlHttps(document.getElementById('edit-link').value, 'Link externo');
+    _tour = urlHttps(document.getElementById('edit-tour360').value, 'Tour 360°');
+  } catch (err) { mostrarMsg(err.message, 'err'); return; }
   progEl.textContent = 'Guardando...';
 
   const { error } = await DB.from('propiedades').update({
@@ -1166,8 +1188,8 @@ async function guardarEdicion() {
     zona: document.getElementById('edit-zona').value || null,
     direccion: document.getElementById('edit-direccion').value || null,
     descripcion: document.getElementById('edit-descripcion').value || null,
-    link_externo: document.getElementById('edit-link').value || null,
-    tour_360: document.getElementById('edit-tour360').value || null,
+    link_externo: _link,
+    tour_360: _tour,
     lat: parseFloat(document.getElementById('edit-lat').value) || null,
     lng: parseFloat(document.getElementById('edit-lng').value) || null,
     destacada: document.getElementById('edit-destacada').checked,
@@ -1183,7 +1205,18 @@ async function guardarEdicion() {
 
   if (error) { mostrarMsg('Error al guardar: ' + error.message, 'err'); progEl.textContent=''; return; }
 
+  // Borrar las fotos que se quitaron en el editor
+  if (editFotosEliminadas.length > 0) {
+    const { error: errDel } = await DB.from('propiedades_fotos').delete().in('id', editFotosEliminadas);
+    if (errDel) { mostrarMsg('Error al quitar fotos: ' + errDel.message, 'err'); progEl.textContent=''; return; }
+  }
+  // Si se quitó la foto principal, la primera que queda pasa a ser principal
+  if (editFotosExistentes.length > 0 && !editFotosExistentes.some(f => f.es_principal)) {
+    editFotosExistentes[0].es_principal = true;
+  }
+
   // Update existing photos order/principal
+  editFotosExistentes.forEach((f, i) => f.orden = i);
   for (const f of editFotosExistentes) {
     await DB.from('propiedades_fotos').update({ orden: f.orden, es_principal: f.es_principal }).eq('id', f.id);
   }
@@ -1475,12 +1508,12 @@ async function cargarEstadisticas() {
 
   } catch(e) {
     ['est-top-props','est-por-dia','est-por-ciudad','est-por-tipo','est-ultimas'].forEach(id =>
-      set(id, `<p style="color:#c62828;font-size:13px;">Error: ${e.message}</p>`));
+      set(id, `<p style="color:#c62828;font-size:13px;">Error: ${esc(e.message)}</p>`));
   }
 }
 // ─────────────────────────────────────────────────────────────────────────────
 </script>
-<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha384-cxOPjt7s7Iz04uaHJceBmS+qpjv2JkIHNVcuOrM+YHwZOmJGBXI00mdUXEq65HTH" crossorigin="anonymous"></script>
 <script>
 // ── MAPAS ADMIN ──
 const MENDOZA = [-32.8908, -68.8458]; // Mendoza Capital - Plaza Independencia
@@ -1612,7 +1645,7 @@ async function geocodificar(direccion, statusId, latId, lngId, mapa, markerRef, 
       setTimeout(() => statusEl.textContent = '', 2000);
     } else {
       // La calle no está en OpenStreetMap — mostrar ayuda con link a Google Maps
-      statusEl.innerHTML = '⚠️ No encontrado — <a href="https://maps.google.com/maps?q=' + encodeURIComponent(direccion.trim()) + '" target="_blank" style="color:#1a73e8;text-decoration:underline;">buscá en Google Maps</a> y copiá las coordenadas abajo';
+      statusEl.innerHTML = '⚠️ No encontrado — <a href="https://maps.google.com/maps?q=' + encodeURIComponent(direccion.trim()) + '" target="_blank" rel="noopener" style="color:#1a73e8;text-decoration:underline;">buscá en Google Maps</a> y copiá las coordenadas abajo';
       statusEl.style.fontSize = '11px';
       statusEl.style.whiteSpace = 'nowrap';
     }

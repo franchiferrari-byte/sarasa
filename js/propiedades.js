@@ -4,6 +4,13 @@
 
 const DB = window.supabase.createClient(CONFIG.SUPABASE_URL, CONFIG.SUPABASE_KEY);
 
+// Valor seguro para url("...") en CSS: solo https y sin caracteres que corten la cadena
+function cssUrl(url) {
+  const u = String(url || '');
+  if (!/^https:\/\//i.test(u)) return 'none';
+  return 'url("' + u.replace(/["\\\n\r]/g, encodeURIComponent) + '")';
+}
+
 function formatPrecio(precio, moneda) {
   if (!precio) return 'Consultar';
   if (moneda === 'ARS') return '$ ' + Number(precio).toLocaleString('es-AR');
@@ -148,7 +155,7 @@ async function cargarFicha(identificador) {
   const mainImg = document.getElementById('foto-principal');
   const thumbsEl = document.getElementById('galeria-thumbs');
   if (fotos.length > 0) {
-    mainImg.style.backgroundImage = `url('${fotos[0].url}')`;
+    mainImg.style.backgroundImage = cssUrl(fotos[0].url);
     thumbsEl.innerHTML = fotos.map((f, i) => `
       <img src="${esc(f.url)}" data-url="${esc(f.url)}" alt="Foto ${i+1}" class="${i===0?'activa':''}"
         onclick="cambiarFoto(this.dataset.url, this)" loading="lazy" />`).join('');
@@ -235,7 +242,7 @@ async function cargarFicha(identificador) {
 }
 
 function cambiarFoto(url, el) {
-  document.getElementById('foto-principal').style.backgroundImage = `url('${url}')`;
+  document.getElementById('foto-principal').style.backgroundImage = cssUrl(url);
   document.querySelectorAll('.galeria-thumbs img').forEach(i => {
     i.classList.remove('activa');
     i.style.borderColor = 'transparent';
