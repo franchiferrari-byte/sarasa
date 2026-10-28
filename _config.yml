@@ -1,3 +1,4 @@
 # Configuración de GitHub Pages (Jekyll): archivos del repo que no se publican en el sitio
 exclude:
   - CLAUDE.md
+  - cloudflare
