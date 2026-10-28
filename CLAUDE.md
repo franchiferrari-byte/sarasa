@@ -11,7 +11,7 @@ Dominio: https://www.lucasfranchi.com.ar
 - **Mapas:** Leaflet + geocodificación con Nominatim (OpenStreetMap).
 - **Analytics:** Google Analytics (gtag `G-T5YCECGL58`).
 - **Vistas previas al compartir (WhatsApp, Facebook):** un Worker de Cloudflare detecta a los bots y les devuelve en `propiedad.html` las meta OG con título, descripción y la primera foto (Cloudinary 1200×630). Hay una copia en `cloudflare/worker-og.js` (no se publica en el sitio); lo que corre es lo que está en el panel de Cloudflare, así que al cambiarlo hay que pegarlo ahí y tocar Deploy.
-- **Ficha de Google:** "Inmobiliaria Lucas Franchi", San Martín 4316, Luján de Cuyo (`https://maps.google.com/?cid=2027162128960109837`). Las opiniones de `index.html#opiniones` están copiadas a mano: actualizar el texto y el total ("10 opiniones") cuando haya nuevas.
+- **Ficha de Google:** "Inmobiliaria Lucas Franchi", San Martín 4316, Luján de Cuyo (`https://maps.google.com/?cid=2027162128960109837`). Lucas no quiere la dirección de la oficina en el sitio (ni en el schema): solo la localidad. Las opiniones de `index.html#opiniones` están copiadas a mano: actualizar el texto y el total ("10 opiniones") cuando haya nuevas.
 
 ## Estructura
 
