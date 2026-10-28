@@ -20,11 +20,12 @@
     '.contacto-bar > *',
     '.footer-grid > *',
     '.ficha-specs > *',
-    '.grilla > .prop-card'
+    '.grilla > .prop-card',
+    '.opiniones-grid > *'
   ];
   // Elementos sueltos
   const SUELTOS = [
-    '.seccion-header-row', '.seccion-header', '.seccion-azul > div:first-child',
+    '.seccion-header-row', '.seccion-header', '.opiniones-header', '.seccion-azul > div:first-child',
     '.acerca-img', '.acerca-content > *', '.legal > *', '.mapa-page-header > *'
   ];
 

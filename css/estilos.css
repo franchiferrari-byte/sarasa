@@ -2096,6 +2096,43 @@ h3, h4 { font-family: 'DM Sans', sans-serif; }
 .nav-mobile-menu a.nav-cta-mobile svg { color: inherit; }
 .accion-ico { color: var(--dorado-cl); }
 
+/* ── Opiniones de clientes ── */
+.opiniones-header { display: flex; align-items: flex-end; justify-content: space-between; gap: 24px; margin-bottom: 40px; flex-wrap: wrap; }
+.opiniones-resumen {
+  display: inline-flex; align-items: center; gap: 10px;
+  background: #fff; border: 1px solid rgba(15,34,68,.06); border-radius: 999px;
+  padding: 10px 18px; box-shadow: var(--sombra-card);
+  transition: transform .35s var(--ease), box-shadow .35s;
+}
+.opiniones-resumen:hover { transform: translateY(-2px); box-shadow: var(--sombra-hover); }
+.opiniones-resumen strong { font-family: var(--serif); font-size: 22px; color: var(--azul); }
+.opiniones-resumen span { color: var(--gris-texto); font-size: 13px; }
+.opinion-estrellas { display: inline-flex; gap: 2px; color: #e3a008; }
+.opiniones-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; }
+.opinion {
+  background: #fff; border: 1px solid rgba(15,34,68,.06); border-radius: 20px;
+  padding: 28px 26px 24px; box-shadow: var(--sombra-card); margin: 0;
+  display: flex; flex-direction: column; gap: 16px; position: relative;
+  transition: transform .45s var(--ease), box-shadow .45s var(--ease);
+}
+.opinion::after {   /* comilla decorativa */
+  content: '”'; position: absolute; top: 6px; right: 22px;
+  font-family: var(--serif); font-size: 80px; line-height: 1; color: rgba(201,168,76,.18);
+}
+.opinion:hover { transform: translateY(-6px); box-shadow: var(--sombra-hover); }
+.opinion blockquote { color: var(--texto); font-size: 15px; line-height: 1.7; flex: 1; }
+.opinion figcaption { display: flex; align-items: center; gap: 12px; padding-top: 16px; border-top: 1px solid var(--gris-borde); }
+.opinion-avatar {
+  width: 40px; height: 40px; border-radius: 50%; flex-shrink: 0;
+  display: flex; align-items: center; justify-content: center;
+  background: var(--grad-azul); color: #fff; font-weight: 700; font-size: 15px;
+}
+.opinion figcaption strong { display: block; color: var(--azul); font-size: 14px; }
+.opinion figcaption span { color: var(--gris-texto); font-size: 12px; }
+.opiniones-cta { text-align: center; margin-top: 36px; }
+@media (max-width: 1024px) { .opiniones-grid { grid-template-columns: 1fr 1fr; } }
+@media (max-width: 768px)  { .opiniones-grid { grid-template-columns: 1fr; } .opiniones-header { align-items: flex-start; } }
+
 /* ── WhatsApp flotante (también en escritorio) ── */
 .wsp-flotante { display: flex; border-radius: 999px; transition: transform .3s var(--ease), box-shadow .3s; }
 .wsp-flotante::before {

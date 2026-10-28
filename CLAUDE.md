@@ -10,6 +10,8 @@ Dominio: https://www.lucasfranchi.com.ar
 - **Fotos:** Cloudinary, con un preset sin firmar (`lucasfranchi_fotos`) restringido: carpeta `propiedades`, sin overwrite, public ID aleatorio, solo jpg/jpeg/png/webp/heic y fotos limitadas a 2000 px (incoming `c_limit,w_2000,h_2000,q_auto`).
 - **Mapas:** Leaflet + geocodificación con Nominatim (OpenStreetMap).
 - **Analytics:** Google Analytics (gtag `G-T5YCECGL58`).
+- **Vistas previas al compartir (WhatsApp, Facebook):** un Worker de Cloudflare detecta a los bots y les devuelve en `propiedad.html` las meta OG con título, descripción y la primera foto (Cloudinary 1200×630). Ese código **no está en este repo**: se edita en el panel de Cloudflare.
+- **Ficha de Google:** "Inmobiliaria Lucas Franchi", San Martín 4316, Luján de Cuyo (`https://maps.google.com/?cid=2027162128960109837`). Las opiniones de `index.html#opiniones` están copiadas a mano: actualizar el texto y el total ("10 opiniones") cuando haya nuevas.
 
 ## Estructura
 
@@ -52,4 +54,4 @@ Dominio: https://www.lucasfranchi.com.ar
 
 ## Pendientes conocidos
 
-- Las meta OG de cada propiedad se cargan por JS, así que WhatsApp y Facebook no las ven al compartir.
+- La descripción OG que arma el Worker toma los primeros caracteres de la descripción (repite el título y corta a mitad de palabra) y no incluye el precio.
