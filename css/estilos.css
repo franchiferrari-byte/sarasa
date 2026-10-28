@@ -1751,6 +1751,7 @@ img { max-width: 100%; display: block; }
   --grad-azul:    linear-gradient(135deg, #0f2244 0%, #1e3a6e 100%);
   --sombra-card:  0 1px 2px rgba(15,34,68,.04), 0 8px 24px rgba(15,34,68,.06);
   --sombra-hover: 0 2px 4px rgba(15,34,68,.06), 0 24px 48px -12px rgba(15,34,68,.22);
+  --dorado-texto: #8a6d22;   /* dorado para texto sobre fondo claro (contraste 4,9:1) */
 }
 
 ::selection { background: var(--dorado-cl); color: var(--azul); }
@@ -2072,6 +2073,28 @@ h3, h4 { font-family: 'DM Sans', sans-serif; }
   .ficha-titulo { font-size: 24px; }
   .ficha-precio-top { text-align: left; display: flex; align-items: center; justify-content: space-between; gap: 12px; }
 }
+
+/* ── Dorado legible sobre fondos claros ── */
+.seccion-tag, .ver-todas, .prop-ver,
+.nav-links a:hover, .nav-mobile-menu a:hover, .contacto-item a:hover { color: var(--dorado-texto); }
+.seccion-azul .seccion-tag { color: var(--dorado); }
+
+/* ── Marca (nav y footer) ── */
+.nav-logo img { width: 44px; height: 44px; border-radius: 12px; box-shadow: 0 6px 14px -6px rgba(15,34,68,.5); }
+.nav.scrolled .nav-logo img { width: 38px; height: 38px; }
+.nav-logo:hover img { transform: rotate(-4deg) scale(1.04); }
+.nav-logo img { transition: width .35s var(--ease), height .35s var(--ease), transform .35s var(--ease); }
+.footer-marca { display: flex; align-items: center; gap: 12px; margin-bottom: 16px; }
+.footer-marca img { width: 48px; height: 48px; margin: 0; filter: none; border-radius: 12px; box-shadow: 0 0 0 1px rgba(201,168,76,.35); }
+.footer-marca strong { display: block; color: #fff; font-size: 15px; letter-spacing: 1px; }
+.footer-marca span { color: rgba(255,255,255,.5); font-size: 11px; }
+.acerca-img { background: #000153; }   /* mismo azul que el fondo del logo */
+.acerca-img img { padding: 0 !important; object-fit: cover !important; }
+
+/* ── Íconos que reemplazan emojis ── */
+.nav-mobile-menu a svg { color: var(--dorado-texto); flex-shrink: 0; }
+.nav-mobile-menu a.nav-cta-mobile svg { color: inherit; }
+.accion-ico { color: var(--dorado-cl); }
 
 /* ── WhatsApp flotante (también en escritorio) ── */
 .wsp-flotante { display: flex; border-radius: 999px; transition: transform .3s var(--ease), box-shadow .3s; }

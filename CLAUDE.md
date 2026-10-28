@@ -26,7 +26,8 @@ Dominio: https://www.lucasfranchi.com.ar
 | `admin/estadisticas.html` | Estadísticas de visitas |
 | `js/config.js` | Configuración **pública** (Supabase, Cloudinary, contacto) y función `esc()` |
 | `js/propiedades.js` | Lógica pública de listado y tarjetas |
-| `js/animaciones.js` | Animaciones públicas (aparición al scrollear, nav, contadores). No va en `admin/` |
+| `js/animaciones.js` | Animaciones públicas (aparición al scrollear, nav, contadores) y año del © (`.anio-actual`). No va en `admin/` |
+| `img/marca.svg` | Isotipo (techo dorado sobre azul del sitio) usado en nav y footer. `img/logo.jpeg` es el logo completo (OG, schema, Quiénes somos, admin) |
 | `css/estilos.css` | Estilos de todo el sitio. La capa de diseño moderno está al final ("MODERNIZACIÓN VISUAL") |
 
 ## Reglas de trabajo

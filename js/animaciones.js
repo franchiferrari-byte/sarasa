@@ -1,7 +1,7 @@
 // ============================================================
 //  LUCAS FRANCHI — Animaciones del sitio público
 //  Aparición al hacer scroll, nav que se achica, barra de
-//  progreso y contadores. Sin dependencias.
+//  progreso, contadores y año del ©. Sin dependencias.
 // ============================================================
 
 (function () {
@@ -112,6 +112,9 @@
     barra.className = 'progreso-scroll';
     barra.setAttribute('aria-hidden', 'true');
     document.body.appendChild(barra);
+
+    // Año del © siempre actualizado
+    document.querySelectorAll('.anio-actual').forEach(function (el) { el.textContent = new Date().getFullYear(); });
 
     marcarActivo();
     prepararTodo();
