@@ -172,6 +172,8 @@ async function cargarFicha(identificador) {
   descEl.innerHTML = descText.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/\r\n/g,'<br>').replace(/\r/g,'<br>').replace(/\n/g,'<br>');
   document.getElementById('info-precio').textContent = formatPrecio(p.precio, p.moneda);
   document.getElementById('info-operacion').textContent = p.tipo_operacion || 'Venta';
+  document.getElementById('ficha-precio').textContent = formatPrecio(p.precio, p.moneda);
+  document.getElementById('ficha-operacion').textContent = p.tipo_operacion || 'Venta';
   const specs = [
     { val: p.dormitorios, label: 'Dormitorios' },
     { val: p.banos, label: 'Baños' },

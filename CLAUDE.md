@@ -26,7 +26,8 @@ Dominio: https://www.lucasfranchi.com.ar
 | `admin/estadisticas.html` | Estadísticas de visitas |
 | `js/config.js` | Configuración **pública** (Supabase, Cloudinary, contacto) y función `esc()` |
 | `js/propiedades.js` | Lógica pública de listado y tarjetas |
-| `css/estilos.css` | Estilos de todo el sitio |
+| `js/animaciones.js` | Animaciones públicas (aparición al scrollear, nav, contadores). No va en `admin/` |
+| `css/estilos.css` | Estilos de todo el sitio. La capa de diseño moderno está al final ("MODERNIZACIÓN VISUAL") |
 
 ## Reglas de trabajo
 
@@ -43,6 +44,10 @@ Dominio: https://www.lucasfranchi.com.ar
 - Las librerías externas van con versión exacta y `integrity` (SRI). Si se cambia una versión, recalcular el hash: `curl -sL <url> | openssl dgst -sha384 -binary | openssl base64 -A`.
 - Las páginas de `admin/` tienen una CSP en `<meta>`. Si se agrega un servicio externo nuevo al panel, sumarlo ahí.
 - `_config.yml` excluye `CLAUDE.md` del sitio publicado.
+
+## Caché
+
+- Los HTML cargan `css/estilos.css`, `js/propiedades.js` y `js/animaciones.js` con `?v=N`. Al cambiar alguno de esos archivos, subir el número en **todos** los HTML (incluido `admin/`) para que los visitantes no vean la versión vieja.
 
 ## Pendientes conocidos
 

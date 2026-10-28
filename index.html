@@ -53,7 +53,7 @@
   }
   </script>
 
-  <link rel="stylesheet" href="css/estilos.css" />
+  <link rel="stylesheet" href="css/estilos.css?v=2" />
   <!-- Google tag (gtag.js) -->
 <script async src="https://www.googletagmanager.com/gtag/js?id=G-T5YCECGL58"></script>
 <script>
@@ -127,8 +127,9 @@
     </div>
   </div>
   <div class="hero-img">
-    <img src="https://images.unsplash.com/photo-1580587771525-78b9dba3b914?w=900&q=80" alt="Propiedades en Mendoza" />
+    <img src="https://images.unsplash.com/photo-1580587771525-78b9dba3b914?w=1600&q=80" alt="Propiedades en Mendoza" fetchpriority="high" />
   </div>
+  <a href="#destacadas" class="hero-scroll" aria-label="Ver propiedades destacadas"><span></span>Descubrí más</a>
 </section>
 
 <!-- BUSCADOR -->
@@ -188,7 +189,7 @@
 </div>
 
 <!-- PROPIEDADES DESTACADAS -->
-<section class="seccion">
+<section class="seccion" id="destacadas">
   <div class="seccion-header-row">
     <div>
       <div class="seccion-tag">Selección especial</div>
@@ -397,9 +398,10 @@
   </div>
 </footer>
 
+<script src="js/animaciones.js?v=2"></script>
 <script src="js/config.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.117.2/dist/umd/supabase.min.js" integrity="sha384-WgXwGL6fUsYJWNaKJgVbrJKGRQwc1vieh2oy4kw9nXqpNDz3tdSsqEYUgeHD/NuF" crossorigin="anonymous"></script>
-<script src="js/propiedades.js"></script>
+<script src="js/propiedades.js?v=2"></script>
 <script>
   // WhatsApp links
   const wsp = `https://wa.me/${CONFIG.WHATSAPP}`;
