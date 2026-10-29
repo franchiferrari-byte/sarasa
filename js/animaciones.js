@@ -85,7 +85,7 @@
 
   // ── Contador animado para números como "+10" ──
   function contar(el) {
-    const m = el.textContent.match(/^(\D*)(\d+)(\D*)$/);
+    const m = el.textContent.match(/^([^\w\s]*)(\d+)(\D*)$/);   // "+10" sí, "Mat. 1740" no
     if (!m || reducirMovimiento) return;
     const fin = parseInt(m[2], 10);
     const dur = 1400;
